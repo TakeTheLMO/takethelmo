@@ -1,3 +1,5 @@
+import { externalLinks } from "./external-links";
+
 export const siteConfig = {
   name: "taketheLMO",
   subtitle: "Laboratory Safety Management Platform",
@@ -15,6 +17,6 @@ export const footerConfig = {
     { label: "개인정보처리방침", href: "/privacy" },
     { label: "이용약관", href: "/terms" },
   ],
-  // 관련 기관 링크. 실제 주소를 확인한 뒤에만 추가한다. 예: { label: "기관명", href: "https://..." }
-  external: [] as { label: string; href: string }[],
+  // 관련 기관 링크 (config/external-links.ts 에서 관리)
+  external: [externalLinks.labs, externalLinks.edu, externalLinks.lmo].map(({ label, href }) => ({ label, href })),
 };

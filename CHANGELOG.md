@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.3.1 — 2026-11-02 (package.json 버전은 다음 커밋에서 올림)
+- 외부 연계 시스템 링크: 연구실안전정보망, 연구실 안전교육, LMO 정보시스템 (`config/external-links.ts`)
+  - 자료실·안전관리 규정·안전교육·LMO 메뉴 페이지에 "관련 외부 사이트" 표시, 푸터 하단에 링크
+- 빌드 오류 수정: `"use server"` 파일의 상수 export 제거 (reset-password)
+- 타입 오류 수정: Supabase 쿠키 `setAll` 타입 명시 (supabase-js 2.118 대응)
+
 ## 0.3.0 — 2026-11-01  (뼈대 정리 + AI 협업 문서)
 ### 추가
 - 로고 마크(방패+플라스크) + `takethe**LMO**` 워드마크, 파비콘(`app/icon.svg`), `public/logo.svg`

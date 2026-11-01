@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { logAuditEvent } from "@/lib/audit";
 
-export const MIN_PASSWORD_LENGTH = 12;
+// "use server" 파일은 async 함수만 export 할 수 있다. 다른 곳에서 필요하면 lib/ 로 옮길 것.
+const MIN_PASSWORD_LENGTH = 12;
 
 export async function updatePassword(input: { password: string; confirm: string; mode?: string }) {
   const { password, confirm } = input;

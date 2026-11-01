@@ -8,6 +8,7 @@
 | D-04 | 권한 = 역할(profiles.role) + 범위(role_assignments) + 소속(lab_memberships) | 연구실·시설 단위 접근 제한 |
 | D-05 | 그룹 경로에 하위 메뉴가 없으면 첫 하위 메뉴로 이동 (`/library` → `/library/manuals`) | 404 방지, 메뉴 설정 한 곳에서 관리 |
 | D-06 | 로고: 방패+플라스크 마크 + `takethe**LMO**` | 브랜드 임시안. 정식 로고가 생기면 `Logo.tsx`, `public/logo.svg`, `app/icon.svg` 3곳만 교체 |
+| D-12 | 외부 시스템(연구실안전정보망, 연구실 안전교육, LMO 정보시스템)이 법정 업무의 원본. taketheLMO 는 링크 + 내부 기록 관리 | 팀 공유 (`01-product-spec.md` 13절) |
 | D-07 | 역할 표시명: 최고관리자 / 안전관리자 / 연구실 관리자 / LMO 관리자 / 연구활동종사자 | `config/roles.ts` 의 `ROLE_LABELS` |
 
 ## 결정 필요
@@ -18,3 +19,4 @@
 | D-09 | `/labs/details` 메뉴 | 연구실 상세는 보통 `/labs/[id]` 이므로 메뉴에서 빼고 목록에서 진입 | 메뉴 유지 중 (4단계에서 결정) |
 | D-10 | 다중 기관 운영 여부 | 1개 기관 / 여러 기관 | DB 는 다중 기관 지원. UI 는 1개 기관 가정 |
 | D-11 | 운영기관 정보 | — | `config/site.ts` 입력 필요 |
+| D-13 | 외부 시스템 API 연동 | 수동 입력 / API 연동 | 수동 입력으로 시작. 각 기관에 API 제공 여부 문의 필요 |

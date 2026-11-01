@@ -12,6 +12,7 @@
 | 공통 Footer (운영기관, 메뉴, 약관 링크) | ✅ | 운영기관 정보는 `config/site.ts` 에 입력 필요 |
 | PageHeader / SectionLayout (경로표시 + 섹션 메뉴) | ✅ | `components/layout/` |
 | 준비 중 페이지 (메뉴 전체) | ✅ | `app/(site)/[...slug]/page.tsx`, 그룹 경로는 첫 하위 메뉴로 이동 |
+| 외부 연계 사이트 링크 (메뉴별 + 푸터) | ✅ | `config/external-links.ts` |
 | 404 / 403 페이지 | ✅ | `app/(site)/not-found.tsx`, `forbidden/` |
 | 개인정보처리방침 / 이용약관 페이지 | 🟡 | 경로만 있음. 본문은 운영기관 확정 후 |
 | 메인 홈페이지 | ✅ | 데이터 섹션은 빈 상태 표시 |

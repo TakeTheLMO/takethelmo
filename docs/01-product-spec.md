@@ -97,5 +97,18 @@ Next.js 15 (App Router) · TypeScript · Tailwind CSS 3 · Lucide React · Supab
 ## 12. 보안·개인정보
 개인정보 최소 수집, 보유기간 관리(`profiles.retention_until`), 민감정보 분리·접근 제한, 파일 형식·크기 검증, 다운로드 권한 확인, 감사로그 불변, 백업·복구 절차, 유출 대응체계, CSP 헤더(예정).
 
-## 13. 품질·배포
+## 13. 외부 연계 시스템 (`config/external-links.ts`)
+기관에서 실제 사용하는 시스템. 법정 업무의 **원본은 외부 시스템**이고 taketheLMO 는 기관 내부 관리·이력·현황을 담당한다.
+| 시스템 | 주소 | 용도 | 연결된 메뉴 |
+|---|---|---|---|
+| 연구실안전정보망 | https://labs.go.kr/contents/siteMain.do | 법령·고시·매뉴얼·자료 | 자료실, 안전관리 규정 |
+| 연구실 안전교육 | https://edu.labs.go.kr/front/index.do | 법정 안전교육 수강·이수 | 안전교육, LMO 안전교육 이력 |
+| LMO 정보시스템 | https://www.lmosafety.or.kr/mps | LMO 연구시설 신고·허가 | LMO 관리 |
+
+- 자료실 "법령 및 규정"은 법령 원문을 복제하지 않고 연구실안전정보망 원문 링크 + 기관 내부 해설·적용 시행일을 관리한다.
+- 안전교육 이수는 외부 시스템에서 이루어지므로, taketheLMO 에는 이수 기록(과정명, 이수일, 이수증 파일)을 등록·확인하는 방식으로 설계한다. 자동 연동(API)은 제공 여부 확인 전까지 범위 밖.
+- LMO 신고·허가 상태는 외부 시스템 처리 결과(접수번호, 처리일, 증빙)를 입력받아 표시한다. 외부 처리 기록 없이 "완료"로 표시하지 않는다.
+- edu·lmo 사이트의 정식 명칭은 확인 후 `external-links.ts` 를 수정한다.
+
+## 14. 품질·배포
 ESLint · TypeScript · 단위/통합/E2E/RLS 테스트 · GitHub Actions CI · Vercel Preview/Production 환경변수 분리 · 오류 모니터링 · 의존성 보안 업데이트.

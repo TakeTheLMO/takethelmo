@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { SectionLayout } from "@/components/layout/SectionLayout";
 import { ComingSoon } from "@/components/ui/ComingSoon";
+import { ExternalLinkList } from "@/components/ui/ExternalLinkList";
+import { externalLinksFor } from "@/config/external-links";
 import { findNavContext } from "@/config/navigation";
 
 type Props = { params: Promise<{ slug: string[] }> };
@@ -31,6 +33,7 @@ export default async function ComingSoonPage({ params }: Props) {
   return (
     <SectionLayout group={ctx.group} currentHref={ctx.item.href} title={ctx.item.label} description={ctx.item.description}>
       <ComingSoon />
+      <ExternalLinkList links={externalLinksFor(ctx.item.href)} />
     </SectionLayout>
   );
 }

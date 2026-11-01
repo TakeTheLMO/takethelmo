@@ -72,3 +72,4 @@ npm run test:e2e     # build 후 실행 (Playwright)
 - 클라이언트 컴포넌트에서 Supabase 로 관리자 데이터를 직접 조회
 - 기존 마이그레이션 수정, `audit_logs` 수정/삭제
 - 확인되지 않은 법령 문구·기관 정보·연락처를 지어내서 넣기
+- `"use server"` 파일에서 async 함수 외의 값(상수·객체)을 export (빌드 실패). 타입 export 는 허용. 공유 상수는 `lib/` 에 둔다
