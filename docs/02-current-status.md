@@ -1,7 +1,7 @@
 # 02. 현재 구현 현황
 
 > 작업이 끝날 때마다 이 파일을 갱신한다. 표시: ✅ 완료 · 🟡 일부 · ⬜ 미구현
-> 마지막 갱신: v0.3.0 (2026-11-01)
+> 마지막 갱신: 1단계 진행 중 (2026-11-03)
 
 ## 기반
 | 항목 | 상태 | 위치 / 비고 |
@@ -53,8 +53,22 @@
 | E2E (보호 경로, 준비 중, 그룹 리다이렉트, 404, 약관) | ✅ |
 | RLS 테스트 (pgTAP) | 🟡 기본 케이스 |
 | GitHub Actions | ✅ `.github/workflows/ci.yml` |
-| package-lock.json | ⬜ 첫 `npm install` 후 커밋 필요 |
-| supabase/config.toml | ⬜ `supabase init` 후 커밋 |
+| package-lock.json | ✅ 커밋됨 |
+| supabase/config.toml | ✅ 커밋됨 (로컬: 초대 전용, 이메일 확인, `/auth/callback` 허용) |
+| 로컬 검증 (lint·typecheck·test·audit·build·e2e) | ✅ 2026-11-03 전부 통과 (단위 25, E2E 7) |
+| `supabase test db` (RLS) | ⬜ 로컬 미실행 (Docker 필요) |
+
+## 1단계 진행 현황
+| 항목 | 상태 |
+|---|---|
+| 1. npm install / lock 커밋 | ✅ |
+| 2. lint·typecheck·test·build | ✅ (lint 경고 3개, 오류 0) |
+| 3. Supabase 프로젝트 생성·마이그레이션·super_admin | ⬜ |
+| 4. `supabase init` / `supabase test db` | 🟡 init 완료, test db 미실행 |
+| 5. GitHub push → Vercel 연결 | ⬜ |
+| 6. `config/site.ts` 운영기관 정보 | ⬜ |
 
 ## 알려진 확인 필요 사항
-- v0.3.0 변경분은 npm 설치가 불가한 환경에서 작성되어 **`npm run build` 를 아직 돌리지 않았다.** 첫 설치 후 `npm run lint && npm run typecheck && npm test && npm run build` 로 확인할 것.
+- `npm audit` moderate 14건 남음 (eslint·typescript-eslint 계열 개발 도구). CI 기준(high 이상)은 통과.
+- `next` 내부 postcss 는 `package.json` 의 `overrides` 로 8.5.32 이상에 고정 (Next 16 업그레이드 전 임시 조치).
+- 로컬 Node 24 에서도 검증됨. 배포 기준은 `.nvmrc` 의 22.

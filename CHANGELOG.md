@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased — 1단계 (첫 실행·배포 확인)
+- 의존성 보안: `vitest` 2 → 5 (+`vite` 7), `next` 내부 `postcss` 를 `overrides` 로 8.5.32 이상 고정. `npm run audit` (high 이상) 통과
+- `supabase init` → `supabase/config.toml` 추가 (로컬 Auth: 공개 가입 끔, 이메일 확인 켬, `/auth/callback` 리다이렉트 허용)
+- `.gitignore` 에 Playwright 산출물(`test-results`, `playwright-report`) 추가
+- 검증: lint·typecheck·test(25)·audit·build·e2e(7) 로컬 통과
+
 ## 0.3.1 — 2026-11-02 (package.json 버전은 다음 커밋에서 올림)
 - 외부 연계 시스템 링크: 연구실안전정보망, 연구실 안전교육, LMO 정보시스템 (`config/external-links.ts`)
   - 자료실·안전관리 규정·안전교육·LMO 메뉴 페이지에 "관련 외부 사이트" 표시, 푸터 하단에 링크
