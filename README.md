@@ -15,7 +15,7 @@ npm run lint && npm run typecheck && npm test
 Supabase 값이 없어도 홈과 모든 공개 메뉴는 열린다. 로그인과 `/admin` 은 환경변수가 없으면 **열리지 않는다**(fail closed).
 
 ## Supabase 설정
-1. 프로젝트 생성 후 `supabase/migrations/0001`, `0002` 를 순서대로 실행 (또는 `supabase link` 후 `supabase db push`)
+1. 프로젝트 생성 후 `supabase/migrations/0001` ~ `0003` 을 순서대로 실행 (또는 `supabase link` 후 `supabase db push`)
 2. Authentication > Sign In / Providers: **"Allow new users to sign up" 끄기** (초대 전용), Email 켜기, Confirm email 켜기
 3. Authentication > URL Configuration: Site URL 과 Redirect URLs 에 `<사이트주소>/auth/callback` 등록
 4. Authentication > Email Templates (Invite / Reset password / Confirm signup) 링크를 token_hash 방식으로 바꾸면 메일 앱의 링크 미리보기 때문에 토큰이 소모되는 문제를 줄일 수 있다: `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=invite&next=/reset-password?mode=invite` (recovery/email 도 같은 형태)
@@ -24,6 +24,14 @@ Supabase 값이 없어도 홈과 모든 공개 메뉴는 열린다. 로그인과
 insert into public.organizations (code, name) values ('main', '기관명');
 update public.profiles set role = 'super_admin' where email = '내 이메일';
 ```
+
+## 로컬 데모 데이터
+Docker 실행 후 `npx supabase start` → `npx supabase db reset` 하면 마이그레이션 뒤에 `supabase/seed.sql` 이 자동으로 들어간다.
+`.env.local` 에는 `npx supabase status` 의 API URL·anon key 를 넣는다.
+
+- 가상 기관 2곳(데모대학교, 데모연구원), 부서·건물·호실·연구실·구성원·LMO 시설·범위 역할, 공지 22건(데모대학교 구성원에게 보이는 것 19건 + 임시저장·게시중단·다른 기관 각 1건)
+- 계정은 비밀번호가 모두 `demo1234!` 이다: `super@` · `safety@` · `labmgr@` · `lmo@` · `researcher@` · `safety-b@` · `researcher-b@` + `example.com`
+- **운영 DB 에는 넣지 않는다** (알려진 비밀번호). `supabase db push` 는 seed 를 실행하지 않으니 `--include-seed` 를 쓰지 말 것.
 
 ## 권한 모델
 - `profiles.role`: 계정의 기본 역할. 변경 규칙은 DB 트리거(`guard_profile_change`)가 강제한다.

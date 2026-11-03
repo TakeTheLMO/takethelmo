@@ -15,7 +15,9 @@
 | 외부 연계 사이트 링크 (메뉴별 + 푸터) | ✅ | `config/external-links.ts` |
 | 404 / 403 페이지 | ✅ | `app/(site)/not-found.tsx`, `forbidden/` |
 | 개인정보처리방침 / 이용약관 페이지 | 🟡 | 경로만 있음. 본문은 운영기관 확정 후 |
-| 메인 홈페이지 | ✅ | 데이터 섹션은 빈 상태 표시 |
+| 메인 홈페이지 | ✅ | "최신 공지사항" 은 로그인 사용자에게 실제 5건, 나머지 섹션은 빈 상태 |
+| 공통 UI: Pagination, LoginRequired | ✅ | `components/ui/` |
+| 로컬 데모 데이터 | ✅ | `supabase/seed.sql` (로컬 `db reset` 전용, 운영 금지). README "로컬 데모 데이터" |
 | 관리자 레이아웃 (사이드바, 역할별 메뉴) | ✅ | `app/(admin)/admin/layout.tsx` |
 | 보안 헤더 | 🟡 | CSP 미적용 (`next.config.ts` TODO) |
 
@@ -40,11 +42,15 @@
 | 감사로그 조회 화면 | ✅ | `/admin/audit-logs` (필터·페이지네이션 없음) |
 
 ## 데이터 테이블
-✅ profiles, organizations, departments, buildings, rooms, labs, lab_memberships, lab_member_roles, membership_history, lmo_facilities, role_assignments, permissions, audit_logs
-⬜ notices, posts, documents, attachments, training_*, inspection_*, corrective_actions, incident_reports, lmo_permits, lmo_records, workflow_transitions, notifications
+✅ profiles, organizations, departments, buildings, rooms, labs, lab_memberships, lab_member_roles, membership_history, lmo_facilities, role_assignments, permissions, audit_logs, notices (`0003`)
+⬜ posts, documents, attachments, training_*, inspection_*, corrective_actions, incident_reports, lmo_permits, lmo_records, workflow_transitions, notifications
 
-## 업무 기능 (전부 ⬜ — 메뉴와 준비 중 화면만 존재)
-공지사항 · Q&A · FAQ · 자료실 · 연구실 관리 · 안전교육 · 안전점검 · 개선조치 · 사고보고 · LMO · 알림 · 통합 검색 · 승인 워크플로우
+## 업무 기능
+| 기능 | 상태 | 위치 / 비고 |
+|---|---|---|
+| 공지사항 | 🟡 | `features/notices/`, `/community/notices`, `/community/notices/[id]`, `/admin/notices` (목록·작성·수정·게시중단/다시 게시). 코드·단위·E2E 완료, **RLS 테스트(`02_notices.test.sql`)와 로그인 상태 화면은 로컬 Supabase 에서 미확인** |
+
+⬜ 나머지 (메뉴와 준비 중 화면만 존재): Q&A · FAQ · 자료실 · 연구실 관리 · 안전교육 · 안전점검 · 개선조치 · 사고보고 · LMO · 알림 · 통합 검색 · 승인 워크플로우
 
 ## 테스트·CI
 | 항목 | 상태 |
@@ -55,7 +61,7 @@
 | GitHub Actions | ✅ `.github/workflows/ci.yml` |
 | package-lock.json | ✅ 커밋됨 |
 | supabase/config.toml | ✅ 커밋됨 (로컬: 초대 전용, 이메일 확인, `/auth/callback` 허용) |
-| 로컬 검증 (lint·typecheck·test·audit·build·e2e) | ✅ 2026-11-03 전부 통과 (단위 25, E2E 7) |
+| 로컬 검증 (lint·typecheck·test·build·e2e) | ✅ 2026-11-03 공지사항 추가 후 통과 (단위 37, E2E 10) |
 | `supabase test db` (RLS) | ⬜ 로컬 미실행 (Docker 필요) |
 
 ## 1단계 진행 현황

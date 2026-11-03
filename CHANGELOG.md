@@ -1,6 +1,14 @@
 # CHANGELOG
 
 ## Unreleased — 1단계 (첫 실행·배포 확인)
+- 공지사항 (3단계 첫 기능, `docs/pages/community-notices.md`)
+  - `0003_notices.sql`: notices 테이블 + 표준 트리거 + RLS(일반: 소속 기관의 게시 중 공지만 / 기관 관리자: 전체) + GRANT(DELETE 없음)
+  - `/community/notices` 목록(제목 검색, 15건 페이지, 고정 공지 우선)·상세, 비로그인은 로그인 안내
+  - `/admin/notices` 목록·작성·수정·게시중단/다시 게시 (페이지 내 확인, 브라우저 confirm 없음)
+  - 홈 "최신 공지사항" 실제 데이터 5건 (로그인 사용자)
+  - 공통 UI `Pagination`, `LoginRequired` / `lib/format.ts` (날짜·UUID·페이지·LIKE 이스케이프)
+  - 테스트: 단위(schema, format), E2E 3개, pgTAP `02_notices.test.sql`
+- 로컬 데모 데이터 `supabase/seed.sql` (가상 기관·연구실·구성원·역할·LMO 시설·공지, 데모 계정 7개). 운영 DB 금지
 - 의존성 보안: `vitest` 2 → 5 (+`vite` 7), `next` 내부 `postcss` 를 `overrides` 로 8.5.32 이상 고정. `npm run audit` (high 이상) 통과
 - `supabase init` → `supabase/config.toml` 추가 (로컬 Auth: 공개 가입 끔, 이메일 확인 켬, `/auth/callback` 리다이렉트 허용)
 - `.gitignore` 에 Playwright 산출물(`test-results`, `playwright-report`) 추가

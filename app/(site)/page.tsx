@@ -5,6 +5,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonLink } from "@/components/ui/Button";
 import { siteConfig } from "@/config/site";
 import { getSessionUser } from "@/lib/auth/session";
+import { formatDate } from "@/lib/format";
+import { getLatestNotices } from "@/features/notices/queries";
+import type { NoticeListItem } from "@/features/notices/schema";
 
 const quickMenu = [
   { label: "안전관리", desc: "점검 · 개선조치", href: "/safety", icon: ShieldCheck },
@@ -26,6 +29,8 @@ const sections = [
 
 export default async function HomePage() {
   const user = await getSessionUser();
+  // 공지사항은 로그인 사용자에게만 실제 데이터 (비로그인은 기존 빈 상태 유지 — 명세 3)
+  const latestNotices = user ? await getLatestNotices(5) : [];
 
   return (
     <>
@@ -91,11 +96,30 @@ export default async function HomePage() {
                   전체보기 <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                 </Link>
               </div>
-              <EmptyState message={s.message} />
+              {s.href === "/community/notices" && latestNotices.length > 0 ? (
+                <LatestNotices rows={latestNotices} />
+              ) : (
+                <EmptyState message={s.message} />
+              )}
             </section>
           ))}
         </div>
       </Container>
     </>
+  );
+}
+
+function LatestNotices({ rows }: { rows: NoticeListItem[] }) {
+  return (
+    <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
+      {rows.map((n) => (
+        <li key={n.id}>
+          <Link href={`/community/notices/${n.id}`} className="flex items-center justify-between gap-4 px-4 py-3 text-sm hover:bg-gray-50">
+            <span className="truncate font-medium text-gray-800">{n.title}</span>
+            <span className="shrink-0 text-xs text-gray-500">{n.published_at && formatDate(n.published_at)}</span>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
