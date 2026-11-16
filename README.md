@@ -14,6 +14,20 @@ npm run lint && npm run typecheck && npm test
 ```
 Supabase 값이 없어도 홈과 모든 공개 메뉴는 열린다. 로그인과 `/admin` 은 환경변수가 없으면 **열리지 않는다**(fail closed).
 
+## 브라우저 체험 데모 (2026-11-04)
+
+원격 `demo` 브랜치 기반의 프론트엔드 데모입니다. `npm ci` 후 `npm run dev`로 실행하고 `/demo`를 열면 됩니다. Docker, Supabase, API 키가 필요하지 않습니다. `/`는 `/demo`로 이동하며 기존 홈은 `/portal`에 있습니다.
+
+- 상단 **체험 역할 전환**에서 일반 연구원, 연구실 안전담당자, LMO 담당자, 기관 안전관리자, 시스템 관리자를 선택합니다. 실제 로그인 권한과는 별개입니다.
+- **신청·검토**: 일반 연구원으로 제출 → 안전관리자로 검토 시작 → 보완 요청 → 연구원으로 보완 후 재제출 → 관리자로 다시 검토하고 승인/반려.
+- **점검·개선조치**: 부적합 점검 저장 → 작성자에게 개선조치 생성 → 증빙 등록 → 다른 담당자가 검토하여 종결 또는 재조치 요청.
+- **교육·이수증**: 가상 과정에 수강 예정 등록 → PDF/PNG/JPG(5MB 이하) 등록 → 현황·알림 갱신 → 원본 다운로드.
+- 도우미, 통합 검색, 상황별 가이드, LMO 확인 지원, 자료실, 사고 기록, 시설·구성원·관리대장, 알림도 체험할 수 있습니다. 상세 범위는 [데모 명세](docs/pages/demo.md)를 참고하세요.
+
+기록은 localStorage, 첨부 원본은 IndexedDB에 저장됩니다. 브라우저·주소별로 독립적이며 서버로 전송하지 않습니다. 왼쪽 메뉴의 **체험 데이터 초기화**로 초기 시나리오를 다시 시작합니다. 모든 인물·기관·업무 기록은 가상이고, 도우미는 예제 자료를 사용하는 규칙 기반 응답입니다. 공식 신고/교육 이수 인정/진위 검증/법적 판단/외부 알림 발송은 수행하지 않습니다.
+
+`npm run build` 후 `npm run test:e2e`는 포트 3100에 별도 검사 서버를 띄웁니다. `TEST_PORT`로 바꿀 수 있습니다. 설치된 Chrome으로 검사하려면 PowerShell에서 `$env:PLAYWRIGHT_CHANNEL='chrome'`을 지정합니다. 기본은 Playwright Chromium입니다.
+
 ## Supabase 설정
 1. 프로젝트 생성 후 `supabase/migrations/0001` ~ `0003` 을 순서대로 실행 (또는 `supabase link` 후 `supabase db push`)
 2. Authentication > Sign In / Providers: **"Allow new users to sign up" 끄기** (초대 전용), Email 켜기, Confirm email 켜기

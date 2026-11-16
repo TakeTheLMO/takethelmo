@@ -16,8 +16,10 @@ test("외부 주소로의 next 파라미터는 무시된다 (로그인 화면은
   await expect(page.getByRole("heading", { name: "로그인" })).toBeVisible();
 });
 
-test("홈과 준비 중 페이지는 공개로 열린다", async ({ page }) => {
+test("데모 홈과 기존 포털은 공개로 열린다", async ({ page }) => {
   await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("나의 안전 현황");
+  await page.goto("/portal");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("안전한 연구환경");
   await page.goto("/safety/inspections");
   await expect(page.getByText("준비 중인 페이지입니다")).toBeVisible();
