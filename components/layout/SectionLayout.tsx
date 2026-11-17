@@ -30,8 +30,8 @@ export function SectionLayout({
         crumbs={[{ label: group.label, href: group.items[0]?.href ?? group.href }, { label: title }]}
         actions={actions}
       />
-      <Container className="grid gap-8 py-8 lg:grid-cols-[14rem_1fr]">
-        <aside>
+      <Container className="grid grid-cols-1 gap-8 py-8 lg:grid-cols-[14rem_minmax(0,1fr)]">
+        <aside className="min-w-0">
           <nav aria-label={`${group.label} 메뉴`} className="lg:sticky lg:top-24">
             <p className="mb-2 hidden px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 lg:block">{group.label}</p>
             <ul className="flex gap-1 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">

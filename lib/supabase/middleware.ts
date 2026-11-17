@@ -2,13 +2,16 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { PROTECTED_PREFIXES } from "@/config/roles";
 import { isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from "./env";
+import { isWorkspacePath } from "@/config/workspace";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 function redirectToLogin(request: NextRequest) {
-  const url = request.nextUrl.clone();
+  const url = new URL(request.nextUrl.href);
+  // Next may normalize 127.0.0.1 to localhost; keep redirects on the actual origin.
+  url.host = request.headers.get("host") || url.host;
   const target = request.nextUrl.pathname + request.nextUrl.search;
-  url.pathname = "/login";
+  url.pathname = "/institution-login";
   url.search = "";
   url.searchParams.set("next", target);
   return NextResponse.redirect(url);
@@ -16,6 +19,14 @@ function redirectToLogin(request: NextRequest) {
 
 // 1차 방어선일 뿐이다. 역할 검사는 각 page/route의 requireRole과 DB RLS가 담당한다.
 export async function updateSession(request: NextRequest) {
+  const isDemo = isWorkspacePath(request.nextUrl.pathname);
+  if (isDemo && !request.cookies.get("takethelmo-local-session")?.value) {
+    const url = new URL(request.nextUrl.href);
+    url.host = request.headers.get("host") || url.host;
+    url.pathname = "/login"; url.search = "";
+    url.searchParams.set("next", request.nextUrl.pathname + request.nextUrl.search);
+    return NextResponse.redirect(url);
+  }
   const isProtected = PROTECTED_PREFIXES.some((p) => request.nextUrl.pathname.startsWith(p));
 
   // 환경변수가 없으면 보호 경로는 열어 주지 않는다.

@@ -25,7 +25,7 @@ export function Footer() {
         </div>
 
         <nav aria-label="사이트 메뉴" className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-          {navigation.map((g) => (
+          {navigation.filter(group => !group.adminOnly).map((g) => (
             <div key={g.href}>
               <p className="text-sm font-semibold text-gray-900">{g.label}</p>
               <ul className="mt-2 space-y-1.5">

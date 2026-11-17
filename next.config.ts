@@ -10,6 +10,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Preserve the request origin for middleware redirects and RSC prefetches.
+  skipMiddlewareUrlNormalize: true,
+  serverExternalPackages: ["node:sqlite"],
   poweredByHeader: false,
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
