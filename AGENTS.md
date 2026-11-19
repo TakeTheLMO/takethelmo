@@ -22,6 +22,7 @@ npm run test:e2e     # build 후 실행 (Playwright)
 
 ## 2. 절대 규칙 (어기면 안 됨)
 1. **권한 검사는 3중**: middleware(로그인) + 각 `page.tsx`·Server Action·Route Handler 의 `requireRole()` + PostgreSQL RLS.
+   (Supabase 기준. 포털 계정(SQLite) 화면의 3중 검사는 2-1 절 참고)
    레이아웃의 검사만 믿지 말 것. 새 관리자 페이지/액션에는 반드시 `requireRole()` 를 첫 줄에 둔다.
 2. **fail closed**: 환경변수 누락·인증 오류·프로필 없음·비활성 계정은 항상 "비로그인"으로 취급한다.
 3. **`SUPABASE_SERVICE_ROLE_KEY` 는 서버 전용**. `lib/supabase/admin.ts` 로만 쓰고, `"use client"` 파일에서 import 금지.
@@ -32,6 +33,25 @@ npm run test:e2e     # build 후 실행 (Playwright)
 7. **법적 상태 표시 주의**: LMO 신고·허가 등은 실제 완료 기록이 있을 때만 "완료"로 표시한다.
 8. **감사로그에 비밀번호·토큰·이메일 원문을 넣지 않는다**. 필요하면 해시(`sha256`)만.
 9. 권한 규칙을 바꾸면 `lib/auth/permissions.ts` 와 DB 함수(`guard_profile_change` 등)를 **함께** 고치고 테스트를 추가한다.
+
+## 2-1. 인증 체계는 두 개다 (D-15) — 새 기능은 어느 쪽인지 먼저 정한다
+| | **포털 계정 (SQLite)** | **기관 계정 (Supabase)** |
+|---|---|---|
+| 용도 | 프로토타입 업무 포털: `/portal`, `/mypage`, 안전·연구실·교육·LMO·자료실 업무 화면, `/management/*` | 기관 운영 기능: `/admin/*`, `/community/notices`, `/institution-login` |
+| 로그인 | `/login`, `/signup` (공개 가입, 역할 선택) | `/institution-login` (초대 전용, D-02) |
+| 코드 | `features/local-auth/`, `features/user-management/`, `features/portal-content/`, `features/demo/`, `features/workspace/`, `app/api/{prototype-auth,account-*,portal-content}` | `lib/auth/`, `lib/supabase/`, `features/notices/`, `supabase/migrations/` |
+| ① 1차 | middleware: `config/workspace.ts` 경로에 세션 쿠키가 있는지 | middleware: `PROTECTED_PREFIXES` 로그인 여부 |
+| ② 서버 | 페이지 `requireLocalUser()` (`WorkPage`), API `accountAccess()` — DB 세션·활성 상태 검증 | `requireRole()` / `requireUser()` |
+| ③ 데이터 | Store 메서드 첫 줄 `this.admin(actor)` 또는 `actor === user` 검사 | RLS + 트리거 |
+| 관리자 판단 | **활성 `username='admin'` 계정만** (`canSwitchRole`, `AccountDataStore.admin()`). role 값은 서버 권한이 아님 | role (`lib/auth/permissions.ts`) |
+
+규칙:
+- 새 기능은 **지금 그 기능이 붙어 있는 화면의 체계**를 따른다. 포털 업무 화면 확장 = SQLite, 기관 운영·관리자(`/admin`) = Supabase. 애매하면 사람에게 묻는다.
+- 한 기능에서 두 체계를 섞지 않는다 (SQLite 사용자로 Supabase 데이터를 읽거나 그 반대 금지).
+- 포털 쪽에 새 API·Store 메서드를 추가할 때도 ②·③ 을 생략하지 않는다: API 는 `accountAccess(request, write)` 로 시작하고, 타인 데이터에 닿는 Store 메서드는 첫 줄에서 `this.admin(actor)` 를 호출한다. 쓰기 요청은 Origin 검사(`accountAccess(..., true)`)를 거친다.
+- 포털의 역할(연구실 안전담당자 등)은 현재 화면 흐름용이며 서버 권한 경계가 아니다. 역할로 서버 권한을 나누려면 먼저 결정 기록을 추가한다.
+- 역할 표시명은 `config/roles.ts` 의 `ROLE_LABELS` 한 곳만 고친다 (`accountRoles` 는 이를 재사용, D-14).
+- 포털 계정 DB(`data/*.sqlite`)와 기본 `admin/admin` 계정은 로컬 프로토타입 전용이다. 운영 배포 전에 별도 처리가 필요하다.
 
 ## 3. 새 페이지 추가 방법 (일반 사이트)
 1. 메뉴에 이미 있으면(`config/navigation.ts`) 지금은 `app/(site)/[...slug]/page.tsx` 가 "준비 중"으로 보여주고 있다.

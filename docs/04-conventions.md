@@ -48,6 +48,14 @@ features/notices/
 
 UI 에서 버튼 숨김은 `lib/auth/permissions.ts` 로 하되, 이것은 편의일 뿐 보안이 아니다.
 
+위 표는 Supabase(기관 계정) 기준이다. 포털 계정(SQLite) 화면은 같은 3층을 다음 코드로 구현한다 (D-15, `AGENTS.md` 2-1):
+
+| 층 | 무엇을 | 코드 |
+|---|---|---|
+| ① middleware | 업무 경로의 세션 쿠키 존재 | `lib/supabase/middleware.ts` + `config/workspace.ts` 의 `isWorkspacePath()` |
+| ② 서버 | DB 세션·활성 상태 검증, 관리 화면은 admin 계정만 | 페이지 `requireLocalUser()`(`WorkPage`), API `accountAccess(request, write)` |
+| ③ 데이터 | 타인 데이터 접근은 활성 admin 만 | `AccountDataStore.admin(actor)` / `PortalContentStore.admin(actor)` 를 Store 메서드 첫 줄에서 호출 |
+
 ## Server Action 템플릿
 ```ts
 "use server";

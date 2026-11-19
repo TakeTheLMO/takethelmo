@@ -67,11 +67,13 @@ Next.js 15 (App Router) · TypeScript · Tailwind CSS 3 · Lucide React · Supab
 ## 8. 권한 (RBAC + 범위)
 | 역할 | 표시명 | 범위 |
 |---|---|---|
-| super_admin | 최고관리자 | 전역. super_admin 지정·해제는 이 역할만 |
-| safety_admin | 안전관리자 | 기관. 일반 사용자·lab_manager·lmo_manager 관리 |
-| lab_manager | 연구실 관리자 | 담당 연구실 |
-| lmo_manager | LMO 관리자 | 담당 LMO 시설 |
-| researcher | 연구활동종사자 | 본인·소속 연구실 조회 |
+| super_admin | 시스템 관리자 | 전역. super_admin 지정·해제는 이 역할만 |
+| safety_admin | 기관 안전관리자 | 기관. 일반 사용자·lab_manager·lmo_manager 관리 |
+| lab_manager | 연구실 안전담당자 | 담당 연구실 |
+| lmo_manager | LMO 담당자 | 담당 LMO 시설 |
+| researcher | 일반 연구원 | 본인·소속 연구실 조회 |
+
+표시명은 D-14. 위 범위는 Supabase(기관 계정) 기준이며, 포털 계정(SQLite)에서는 활성 `admin` 계정만 관리 권한을 가진다 (D-15, `AGENTS.md` 2-1).
 
 - 본인 권한 변경 불가, 마지막 super_admin 보호, 비활성 계정은 모든 검사에서 탈락
 - 검사 위치: middleware → `requireRole()` → RLS/트리거
