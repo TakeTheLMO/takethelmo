@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "개인정보처리방침" };
 // 작성 시 포함 항목: 처리 목적, 처리 항목, 보유기간(profiles.retention_until 과 일치), 제3자 제공, 위탁,
 // 정보주체 권리, 안전성 확보조치, 개인정보 보호책임자, 시행일 및 변경 이력.
 export default async function PrivacyPage() {
-  const document = portalContent().published("/privacy"), local = await getLocalUser();
+  const document = await (await portalContent()).published("/privacy"), local = await getLocalUser();
   return (
     <>
       <PageHeader title={document.page.title} crumbs={[{ label: "개인정보처리방침" }]} />

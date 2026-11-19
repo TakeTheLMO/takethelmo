@@ -2,6 +2,8 @@
 
 > 작업이 끝날 때마다 이 파일을 갱신한다. 표시: ✅ 완료 · 🟡 일부 · ⬜ 미구현
 
+> 2026-11-19 배포 수정: Vercel 에서 `/portal`·`/community/notices` 가 500, 로그인 API 가 503 이던 원인은 포털 SQLite 파일 생성 실패(서버리스 읽기 전용 파일시스템). 포털 저장소를 비동기 `Sql` 인터페이스로 바꾸고 `PORTAL_DATABASE_URL` 이 있으면 Supabase Postgres 를 쓰도록 했다(로컬·테스트는 SQLite 유지). Supabase 프로젝트에 0001~0004 마이그레이션 적용. `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 이름도 인식. 배포 DB 에는 `admin/admin` 을 만들지 않고 `PORTAL_ADMIN_PASSWORD` 로만 생성. 검증: 단위 84개 통과, 타입 검사·lint(오류 0/기존 경고 3)·production build 통과, Postgres 쪽 SQL 은 Supabase 에서 롤백 트랜잭션으로 확인. 기존 로컬 SQLite 데이터는 배포 DB 로 이관하지 않았다.
+
 > 2026-11-19: 인증 체계 2개(포털 SQLite / 기관 Supabase) 병행을 결정(D-15)하고 경계를 `AGENTS.md` 2-1 절에 문서화. 역할 표시명 통일(D-14). 통합 여부는 D-16(결정 필요).
 
 ## 최신 포털 상태 — 2026-11-17 PPT 반영·계정 검토

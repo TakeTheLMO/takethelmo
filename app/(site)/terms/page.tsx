@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "이용약관" };
 
 // 본문은 운영기관이 확정한 내용으로만 게시한다.
 export default async function TermsPage() {
-  const document = portalContent().published("/terms"), local = await getLocalUser();
+  const document = await (await portalContent()).published("/terms"), local = await getLocalUser();
   return (
     <>
       <PageHeader title={document.page.title} crumbs={[{ label: "이용약관" }]} />

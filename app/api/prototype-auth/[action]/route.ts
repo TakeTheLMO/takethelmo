@@ -10,10 +10,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { action } = await params;
   if (!["login", "register", "logout"].includes(action)) return NextResponse.json({ message: "잘못된 요청입니다." }, { status: 404 });
   try {
-    const store = localAuth();
+    const store = await localAuth();
     const cookie = { httpOnly: true, sameSite: "lax" as const, secure: request.nextUrl.protocol === "https:", path: "/" };
     if (action === "logout") {
-      store.logout(request.cookies.get(LOCAL_SESSION_COOKIE)?.value || "");
+      await store.logout(request.cookies.get(LOCAL_SESSION_COOKIE)?.value || "");
       const response = NextResponse.json({ ok: true });
       response.cookies.set(LOCAL_SESSION_COOKIE, "", { ...cookie, maxAge: 0 });
       return response;
@@ -23,15 +23,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const email = typeof input.email === "string" ? input.email : "";
     const password = typeof input.password === "string" ? input.password : "";
     const name = typeof input.name === "string" ? input.name : "";
-    store.attempt(`${action}:${email.trim().toLowerCase()}`);
-    store.attempt(`total:${action}`, 100);
+    await store.attempt(`${action}:${email.trim().toLowerCase()}`);
+    await store.attempt(`total:${action}`, 100);
     if (action === "register") validateRole(
       typeof input.role === "string" ? input.role : "",
     );
-    const user = action === "register" ? store.register(name, email, password, input.role) : store.login(email, password);
-    const token = store.session(user);
+    const user = action === "register" ? await store.register(name, email, password, input.role) : await store.login(email, password);
+    const token = await store.session(user);
     const oldToken = request.cookies.get(LOCAL_SESSION_COOKIE)?.value;
-    if (oldToken) store.logout(oldToken);
+    if (oldToken) await store.logout(oldToken);
     const response = NextResponse.json({ ok: true });
     response.cookies.set(LOCAL_SESSION_COOKIE, token, { ...cookie, maxAge: SESSION_SECONDS });
     response.headers.set("Cache-Control", "no-store");

@@ -46,7 +46,7 @@ npm run dev
 - 관리자 아이디와 비밀번호는 `admin / admin`입니다. 최초 인증 시 생성하며 기존 비밀번호·비활성 상태는 덮어쓰지 않습니다.
 - 가입은 일반 연구원·연구실 안전담당자·LMO 담당자·기관 안전관리자 중 하나를 선택합니다. 직책 중복 선택과 체험 역할 전환은 없습니다. `super_admin` 신규 가입과 예시 전용 이메일 가입은 서버에서도 거부합니다.
 - 다른 사용자 관리 권한은 활성 admin 아이디로만 판정합니다. 비관리자의 업무 역할이나 기존 `super_admin` 표시는 관리자 권한을 부여하지 않습니다.
-- Node.js **22.13 이상** 필요. DB는 `data/local-auth.sqlite`이며 `LOCAL_AUTH_DB_PATH`로 지정할 수 있습니다. 비밀번호는 salt/scrypt 해시, 세션은 HttpOnly 쿠키와 DB 토큰 해시를 사용합니다. DB는 Git에서 제외합니다.
+- Node.js **22.13 이상** 필요. 로컬 DB는 `data/local-auth.sqlite`이며 `LOCAL_AUTH_DB_PATH`로 지정할 수 있습니다. 배포(Vercel)에서는 파일을 쓸 수 없으므로 `PORTAL_DATABASE_URL`(Supabase Postgres, `supabase/migrations/0004_portal_store.sql`)을 설정해야 합니다. 비밀번호는 salt/scrypt 해시, 세션은 HttpOnly 쿠키와 DB 토큰 해시를 사용합니다. DB는 Git에서 제외합니다.
 - 업무 기록과 첨부 원본은 계정별 SQLite에 저장합니다. `/management/users`에서 사용자·카테고리별 등록 자료, 파일, 이력, 알림을 관리하고 `/management/menus`에서 메뉴 안내·공통 자료를 관리합니다.
 - 저장 충돌은 원본을 덮어쓰지 않고 처리합니다. 독립 문의 초안은 최신 상태에 다시 저장하며, 같은 기록의 충돌은 시각별 복구 사본으로 보관합니다.
 - 일상점검 달력·포털 관리자 확인·월간 CSV, 대장 보관위치·용기당 용량·검색/정정은 [일상점검 명세](docs/pages/daily-inspections.md)를 참고하세요. 전체 채팅 요구사항과 남은 범위는 [점검 결과](docs/2026-11-17-requirements-review.md)에 정리했습니다.

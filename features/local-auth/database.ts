@@ -1,52 +1,34 @@
-import { DatabaseSync } from "node:sqlite";
 import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
-import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { validateRole, validateSignupRole, type AccountRole } from "./profile";
+import { isUniqueViolation, type Row, type Sql } from "./sql";
 
 export type LocalUser = { id: string; email: string; name: string; role: AccountRole; canSwitchRole: boolean };
 export const SESSION_SECONDS = 60 * 60 * 24 * 7;
 const digest = (value: string) => createHash("sha256").update(value).digest("hex");
 const derive = (password: string, salt: string) => scryptSync(password, salt, 64);
+const toUser = (row: Row): LocalUser => ({ id: String(row.id), email: String(row.email), name: String(row.name), role: validateRole(String(row.role)), canSwitchRole: row.username === "admin" });
 
 export class LocalAuthStore {
-  readonly db: DatabaseSync;
-  constructor(path: string) {
-    if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
-    this.db = new DatabaseSync(path);
-    this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;
-      CREATE TABLE IF NOT EXISTS local_users (
-        id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
-        password_hash TEXT NOT NULL, salt TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1
-      );
-      CREATE TABLE IF NOT EXISTS local_sessions (
-        token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES local_users(id), expires_at INTEGER NOT NULL
-      );
-      CREATE TABLE IF NOT EXISTS local_auth_attempts (
-        key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL
-      );`);
-    const columns = this.db.prepare("PRAGMA table_info(local_users)").all().map(row => row.name);
-    if (!columns.includes("username")) this.db.exec("ALTER TABLE local_users ADD COLUMN username TEXT");
-    if (!columns.includes("role")) this.db.exec("ALTER TABLE local_users ADD COLUMN role TEXT NOT NULL DEFAULT 'researcher'");
-    if (!columns.includes("position")) this.db.exec("ALTER TABLE local_users ADD COLUMN position TEXT NOT NULL DEFAULT '연구원'");
-    this.db.exec("CREATE UNIQUE INDEX IF NOT EXISTS local_users_username ON local_users(username)");
-  }
-  ensureAdmin() {
+  constructor(readonly db: Sql) {}
+  async ensureAdmin(password = "admin") {
     const salt = randomBytes(16).toString("hex");
-    this.db.prepare(`INSERT OR IGNORE INTO local_users(id,email,name,password_hash,salt,username,role,position)
-      VALUES (?,?,?,?,?,'admin','super_admin','시스템 관리자')`)
-      .run(randomUUID(), "admin@prototype.local", "관리자", derive("admin", salt).toString("hex"), salt);
+    await this.db.run(`INSERT INTO local_users(id,email,name,password_hash,salt,username,role,position)
+      VALUES (?,?,?,?,?,'admin','super_admin','시스템 관리자') ON CONFLICT DO NOTHING`,
+    randomUUID(), "admin@prototype.local", "관리자", derive(password, salt).toString("hex"), salt);
   }
-  attempt(key: string, limit = 10) {
+  async attempt(key: string, limit = 10) {
     const now = Date.now();
-    this.db.prepare("DELETE FROM local_auth_attempts WHERE reset_at <= ?").run(now);
     const hashed = digest(key);
-    this.db.prepare(`INSERT INTO local_auth_attempts(key,count,reset_at) VALUES (?,1,?)
-      ON CONFLICT(key) DO UPDATE SET count=count+1`).run(hashed, now + 15 * 60_000);
-    const row = this.db.prepare("SELECT count FROM local_auth_attempts WHERE key=?").get(hashed)!;
-    if (Number(row.count) > limit) throw new Error("요청이 너무 많습니다. 15분 후 다시 시도해 주세요.");
+    const row = await this.db.tx(`attempt:${hashed}`, async db => {
+      await db.run("DELETE FROM local_auth_attempts WHERE reset_at <= ?", now);
+      await db.run(`INSERT INTO local_auth_attempts(key,count,reset_at) VALUES (?,1,?)
+        ON CONFLICT(key) DO UPDATE SET count=local_auth_attempts.count+1`, hashed, now + 15 * 60_000);
+      return db.get("SELECT count FROM local_auth_attempts WHERE key=?", hashed);
+    });
+    if (Number(row!.count) > limit) throw new Error("요청이 너무 많습니다. 15분 후 다시 시도해 주세요.");
   }
-  register(name: string, email: string, password: string, role = "researcher"): LocalUser {
+  async register(name: string, email: string, password: string, role = "researcher"): Promise<LocalUser> {
     name = name.trim(); email = email.trim().toLowerCase();
     if (email.startsWith("sample.") && email.endsWith("@example.test")) throw new Error("예시 데이터 전용 주소는 가입할 수 없습니다.");
     if (name.length < 2 || name.length > 40) throw new Error("이름은 2~40자로 입력해 주세요.");
@@ -55,43 +37,58 @@ export class LocalAuthStore {
     const salt = randomBytes(16).toString("hex");
     const user = { id: randomUUID(), email, name, role: validateSignupRole(role), canSwitchRole: false };
     try {
-      this.db.prepare("INSERT INTO local_users(id,email,name,password_hash,salt,role) VALUES (?,?,?,?,?,?)")
-        .run(user.id, email, name, derive(password, salt).toString("hex"), salt, user.role);
+      await this.db.run("INSERT INTO local_users(id,email,name,password_hash,salt,role) VALUES (?,?,?,?,?,?)",
+        user.id, email, name, derive(password, salt).toString("hex"), salt, user.role);
     } catch (error) {
-      if (String(error).includes("UNIQUE")) throw new Error("이미 등록된 이메일입니다. 로그인해 주세요.");
+      if (isUniqueViolation(error)) throw new Error("이미 등록된 이메일입니다. 로그인해 주세요.");
       throw error;
     }
     return user;
   }
-  login(email: string, password: string): LocalUser {
+  async login(email: string, password: string): Promise<LocalUser> {
     if (email.length > 254 || password.length > 128) throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
     const identifier = email.trim().toLowerCase();
-    const row = this.db.prepare("SELECT * FROM local_users WHERE email=? OR username=?").get(identifier, identifier);
+    const row = await this.db.get("SELECT * FROM local_users WHERE email=? OR username=?", identifier, identifier);
     const hash = derive(password, String(row?.salt ?? "dummy-auth-salt"));
     const expected = row ? Buffer.from(String(row.password_hash), "hex") : Buffer.alloc(64);
-    if (!row || !timingSafeEqual(hash, expected) || !row.active) throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
-    return { id: String(row.id), email: String(row.email), name: String(row.name), role: validateRole(String(row.role)), canSwitchRole: row.username === "admin" };
+    if (!row || !timingSafeEqual(hash, expected) || !Number(row.active)) throw new Error("이메일 또는 비밀번호가 올바르지 않습니다.");
+    return toUser(row);
   }
-  session(user: LocalUser) {
+  async session(user: LocalUser) {
     const token = randomBytes(32).toString("hex");
-    this.db.prepare("DELETE FROM local_sessions WHERE expires_at <= ?").run(Date.now());
-    this.db.prepare("INSERT INTO local_sessions VALUES (?,?,?)").run(digest(token), user.id, Date.now() + SESSION_SECONDS * 1000);
+    await this.db.run("DELETE FROM local_sessions WHERE expires_at <= ?", Date.now());
+    await this.db.run("INSERT INTO local_sessions(token_hash,user_id,expires_at) VALUES (?,?,?)", digest(token), user.id, Date.now() + SESSION_SECONDS * 1000);
     return token;
   }
-  user(token?: string): LocalUser | null {
+  async user(token?: string): Promise<LocalUser | null> {
     if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
-    const row = this.db.prepare(`SELECT u.id,u.email,u.name,u.role,u.username FROM local_sessions s JOIN local_users u ON u.id=s.user_id
-      WHERE s.token_hash=? AND s.expires_at>? AND u.active=1`).get(digest(token), Date.now());
-    return row ? { id: String(row.id), email: String(row.email), name: String(row.name), role: validateRole(String(row.role)), canSwitchRole: row.username === "admin" } : null;
+    const row = await this.db.get(`SELECT u.id,u.email,u.name,u.role,u.username FROM local_sessions s JOIN local_users u ON u.id=s.user_id
+      WHERE s.token_hash=? AND s.expires_at>? AND u.active=1`, digest(token), Date.now());
+    return row ? toUser(row) : null;
   }
-  logout(token: string) { this.db.prepare("DELETE FROM local_sessions WHERE token_hash=?").run(digest(token)); }
+  async logout(token: string) { await this.db.run("DELETE FROM local_sessions WHERE token_hash=?", digest(token)); }
 }
-let store: LocalAuthStore | undefined;
-export function localAuth() {
-  if (!store) {
-    const created = new LocalAuthStore(resolve(process.env.LOCAL_AUTH_DB_PATH || "data/local-auth.sqlite"));
-    try { created.ensureAdmin(); store = created; }
-    catch (error) { created.db.close(); throw error; }
+
+async function open(): Promise<LocalAuthStore> {
+  const url = process.env.PORTAL_DATABASE_URL;
+  if (url) {
+    const { createPostgres } = await import("./postgres");
+    const store = new LocalAuthStore(createPostgres(url));
+    // 공개 배포에서는 admin/admin 을 만들지 않는다. 비밀번호를 환경변수로 받은 경우에만 최초 1회 생성.
+    const password = process.env.PORTAL_ADMIN_PASSWORD || "";
+    if (password.length >= 12) await store.ensureAdmin(password);
+    return store;
   }
+  // fail closed: 서버리스 환경에서 SQLite 파일로 조용히 대체하지 않는다.
+  if (process.env.VERCEL) throw new Error("PORTAL_DATABASE_URL 환경변수가 없어 포털 계정 저장소를 열 수 없습니다.");
+  const { createSqlite } = await import("./sqlite");
+  const store = new LocalAuthStore(createSqlite(resolve(process.env.LOCAL_AUTH_DB_PATH || "data/local-auth.sqlite")));
+  try { await store.ensureAdmin(); } catch (error) { await store.db.close(); throw error; }
+  return store;
+}
+
+let store: Promise<LocalAuthStore> | undefined;
+export function localAuth() {
+  store ??= open().catch(error => { store = undefined; console.error("[local-auth] 저장소 연결 실패:", error); throw error; });
   return store;
 }

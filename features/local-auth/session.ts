@@ -5,7 +5,7 @@ import { localAuth } from "./database";
 import { safeNextPath } from "@/lib/safe-redirect";
 export const LOCAL_SESSION_COOKIE = "takethelmo-local-session";
 export async function getLocalUser() {
-  try { return localAuth().user((await cookies()).get(LOCAL_SESSION_COOKIE)?.value); }
+  try { return await (await localAuth()).user((await cookies()).get(LOCAL_SESSION_COOKIE)?.value); }
   catch { return null; }
 }
 export async function requireLocalUser(path = "/mypage") {

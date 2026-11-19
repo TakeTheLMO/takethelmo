@@ -23,7 +23,7 @@ export default async function NoticesPage({ searchParams }: Props) {
   const sp = await searchParams;
   const user = await getSessionUser(); // D-08 결정 전까지 로그인 필요 (비로그인은 안내 카드)
   const local = await getLocalUser();
-  const document = portalContent().published(PATH);
+  const document = await (await portalContent()).published(PATH);
 
   let content: React.ReactNode;
   if (local) {

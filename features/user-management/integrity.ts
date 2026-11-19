@@ -1,4 +1,4 @@
-import type { DatabaseSync } from "node:sqlite";
+import type { Sql } from "../local-auth/sql";
 import { isDeepStrictEqual } from "node:util";
 import { assessmentLabels } from "../demo/assessment-data";
 import { inquiryBody, isInquiry, validateInquiry, type DemoState, type Ledger } from "../demo/model";
@@ -61,7 +61,7 @@ export function protectOwnerWorkflow(state: DemoState, previous: DemoState | nul
   }
 }
 
-export function validateChangedFiles(db: DatabaseSync, user: string, state: DemoState, previous: DemoState | null) {
+export async function validateChangedFiles(db: Sql, user: string, state: DemoState, previous: DemoState | null) {
   for (const category of ["actions", "incidents", "enrollments"] as const) {
     for (const row of state[category]) {
       const old = previous?.[category].find(item => category === "enrollments" ? "courseId" in item && "courseId" in row && item.courseId === row.courseId && item.at === row.at : "id" in item && "id" in row && item.id === row.id);
@@ -72,8 +72,8 @@ export function validateChangedFiles(db: DatabaseSync, user: string, state: Demo
         if (submitting && (category === "actions" || category === "enrollments")) throw new Error("등록한 첨부 원본이 필요합니다.");
         continue;
       }
-      const file = db.prepare("SELECT name,type,size FROM account_files WHERE user_id=? AND id=?").get(user, row.file.id);
-      if (!file || file.name !== row.file.name || file.type !== row.file.type || file.size !== row.file.size) throw new Error("본인 계정에 업로드한 첨부 원본과 파일 정보가 일치해야 합니다.");
+      const file = await db.get("SELECT name,type,size FROM account_files WHERE user_id=? AND id=?", user, row.file.id);
+      if (!file || file.name !== row.file.name || file.type !== row.file.type || Number(file.size) !== row.file.size) throw new Error("본인 계정에 업로드한 첨부 원본과 파일 정보가 일치해야 합니다.");
     }
   }
 }

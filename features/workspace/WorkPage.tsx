@@ -20,7 +20,7 @@ import { PublishedContent } from "../portal-content/PublishedContent";
 export async function WorkPage({ path, query = {} }: { path: string; query?: Record<string, string | string[] | undefined> }) {
   const user = await requireLocalUser(path), section = workspaceSection(path), context = findNavContext(path);
   if ((section === "users" || section === "menus") && !user.canSwitchRole) redirect("/mypage");
-  const document = path.startsWith("/management") ? null : portalContent().published(path);
+  const document = path.startsWith("/management") ? null : await (await portalContent()).published(path);
   const value = (key: string) => typeof query[key] === "string" ? query[key] as string : undefined;
   let content;
   switch (section) {
@@ -31,7 +31,7 @@ export async function WorkPage({ path, query = {} }: { path: string; query?: Rec
     case "inspections": content = <Inspections />; break;
     case "incidents": content = <Incidents />; break;
     case "notifications": content = <Notifications />; break;
-    case "search": content = <SearchPage initialQuery={value("q")} sharedPosts={portalContent().search()} />; break;
+    case "search": content = <SearchPage initialQuery={value("q")} sharedPosts={await (await portalContent()).search()} />; break;
     case "library": content = path === "/library/msds" || path === "/library/videos" ? document?.posts.length ? null : <Panel><Empty>{path.endsWith("msds") ? "등록된 MSDS 자료가 없습니다. 취급 물질의 최신 자료를 담당자에게 확인해 주세요." : "등록된 안전 관련 동영상이 없습니다."}</Empty></Panel> : <div className="space-y-6"><PersonalFiles /><Library selectedDoc={value("doc")} /></div>; break;
     case "assistant": content = <Assistant />; break;
     case "guides": content = <Guides />; break;

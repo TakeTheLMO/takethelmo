@@ -35,7 +35,7 @@ export default async function HomePage() {
   const institution = await getSessionUser();
   const local = await getLocalUser();
   const user = local || institution;
-  const document = portalContent().published("/portal");
+  const document = await (await portalContent()).published("/portal");
   // 공지사항은 로그인 사용자에게만 실제 데이터 (비로그인은 기존 빈 상태 유지 — 명세 3)
   const latestNotices = institution ? await getLatestNotices(5) : [];
 

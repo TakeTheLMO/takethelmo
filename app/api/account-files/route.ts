@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   try {
     const { user, store } = await accountAccess(request);
-    const file = store.file(user.id, request.nextUrl.searchParams.get("user") || user.id, request.nextUrl.searchParams.get("id") || "");
+    const file = await store.file(user.id, request.nextUrl.searchParams.get("user") || user.id, request.nextUrl.searchParams.get("id") || "");
     return new Response(new Uint8Array(file.body as Uint8Array), { headers: {
       "Content-Type": "application/octet-stream", "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(String(file.name))}`,
       "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     if (Number(request.headers.get("content-length")) > 5 * 1024 * 1024 + 10000) throw new DataError("첨부파일이 너무 큽니다.", 413);
     const form = await request.formData(), file = form.get("file");
     if (!(file instanceof File)) throw new DataError("첨부파일을 선택해 주세요.");
-    store.putFile(user.id, String(form.get("id") || ""), file.name, file.type, new Uint8Array(await file.arrayBuffer()));
+    await store.putFile(user.id, String(form.get("id") || ""), file.name, file.type, new Uint8Array(await file.arrayBuffer()));
     return NextResponse.json({ ok: true });
   } catch (error) { return accountError(error); }
 }
