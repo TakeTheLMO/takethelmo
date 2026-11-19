@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## Unreleased — 1단계 (첫 실행·배포 확인)
+- 인증 체계 정리 (D-14, D-15): 역할 표시명을 포털 이름으로 통일(`config/roles.ts` 한 곳, `accountRoles` 는 재사용). `AGENTS.md` 2-1 절·`docs/04-conventions.md` 에 SQLite 포털 계정과 Supabase 기관 계정의 경계·3중 검사 규칙 문서화
 - 공지사항 (3단계 첫 기능, `docs/pages/community-notices.md`)
   - `0003_notices.sql`: notices 테이블 + 표준 트리거 + RLS(일반: 소속 기관의 게시 중 공지만 / 기관 관리자: 전체) + GRANT(DELETE 없음)
   - `/community/notices` 목록(제목 검색, 15건 페이지, 고정 공지 우선)·상세, 비로그인은 로그인 안내

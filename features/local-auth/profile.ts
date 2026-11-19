@@ -1,10 +1,7 @@
-export const accountRoles = {
-  researcher: "일반 연구원",
-  lab_manager: "연구실 안전담당자",
-  lmo_manager: "LMO 담당자",
-  safety_admin: "기관 안전관리자",
-  super_admin: "시스템 관리자",
-} as const;
+import { ROLE_LABELS } from "@/config/roles";
+
+// 표시명은 config/roles.ts 한 곳에서 관리한다 (D-14).
+export const accountRoles = ROLE_LABELS;
 export type AccountRole = keyof typeof accountRoles;
 export const signupRoles = Object.fromEntries(Object.entries(accountRoles).filter(([key]) => key !== "super_admin"));
 export function validateSignupRole(role: string): AccountRole {
