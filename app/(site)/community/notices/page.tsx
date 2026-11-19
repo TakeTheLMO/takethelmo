@@ -1,3 +1,5 @@
+import { getLocalUser } from "@/features/local-auth/session";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { Metadata } from "next";
 import { SectionLayout } from "@/components/layout/SectionLayout";
 import { LoginRequired } from "@/components/ui/LoginRequired";
@@ -8,6 +10,8 @@ import { parsePage } from "@/lib/format";
 import { listPublishedNotices } from "@/features/notices/queries";
 import { NoticeList } from "@/features/notices/components/NoticeList";
 import { NoticeSearch } from "@/features/notices/components/NoticeSearch";
+import { portalContent } from "@/features/portal-content/server";
+import { PublishedContent } from "@/features/portal-content/PublishedContent";
 
 const PATH = "/community/notices";
 export const metadata: Metadata = { title: "공지사항" };
@@ -18,9 +22,13 @@ export default async function NoticesPage({ searchParams }: Props) {
   const ctx = findNavContext(PATH)!;
   const sp = await searchParams;
   const user = await getSessionUser(); // D-08 결정 전까지 로그인 필요 (비로그인은 안내 카드)
+  const local = await getLocalUser();
+  const document = portalContent().published(PATH);
 
   let content: React.ReactNode;
-  if (!user) {
+  if (local) {
+    content = document.posts.length ? null : <EmptyState message="등록된 공지사항이 없습니다." />;
+  } else if (!user) {
     content = <LoginRequired next={PATH} message="공지사항은 로그인한 기관 구성원만 볼 수 있습니다." />;
   } else {
     const q = (Array.isArray(sp.q) ? sp.q[0] : sp.q)?.trim() || undefined;
@@ -39,7 +47,8 @@ export default async function NoticesPage({ searchParams }: Props) {
   }
 
   return (
-    <SectionLayout group={ctx.group} currentHref={PATH} title={ctx.item!.label} description="기관 안전관리 공지를 확인합니다.">
+    <SectionLayout group={ctx.group} currentHref={PATH} title={document.page.title || ctx.item!.label} description={document.page.description || "기관 안전관리 공지를 확인합니다."}>
+      {local && <div className="mb-6"><PublishedContent document={document} admin={local.canSwitchRole} /></div>}
       {content}
     </SectionLayout>
   );

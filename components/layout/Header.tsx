@@ -4,15 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ChevronDown, LogIn, Menu, ShieldCheck, UserCircle, X } from "lucide-react";
+import { AccountTools } from "@/features/workspace/AccountTools";
 import { Logo } from "./Logo";
 import { Container } from "@/components/ui/Container";
 import { isPathActive, navigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 
-export type HeaderUser = { email: string | null; roleLabel: string } | null;
+export type HeaderUser = { email: string | null; roleLabel: string; local?: boolean; name?: string } | null;
 
 export function Header({ user, showAdminLink = false }: { user: HeaderUser; showAdminLink?: boolean }) {
   const pathname = usePathname();
+  const visibleNavigation = navigation.filter(group => !group.adminOnly || (user?.local && showAdminLink));
   // 모바일 메뉴는 "열린 경로"를 기억한다. 페이지가 바뀌면 자동으로 닫힌다 (effect 불필요).
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
@@ -23,13 +25,13 @@ export function Header({ user, showAdminLink = false }: { user: HeaderUser; show
       className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85"
       onKeyDown={(e) => e.key === "Escape" && close()}
     >
-      <Container className="flex h-16 items-center gap-6">
+      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center gap-4 px-4 sm:px-6">
         <Logo />
 
         {/* Desktop navigation */}
-        <nav className="hidden flex-1 justify-center lg:flex" aria-label="주 메뉴">
+        <nav className="hidden flex-1 justify-center min-[1440px]:flex" aria-label="주 메뉴">
           <ul className="flex items-center gap-0.5">
-            {navigation.map((group) => {
+            {visibleNavigation.filter(group => !group.adminOnly).map((group) => {
               const active = isPathActive(pathname, group.href);
               return (
                 <li key={group.href} className="group relative">
@@ -37,7 +39,7 @@ export function Header({ user, showAdminLink = false }: { user: HeaderUser; show
                     href={group.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-1 rounded-md px-3 py-2 text-[15px] font-medium text-gray-700 transition-colors hover:text-brand-700",
+                      "flex items-center gap-1 whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-brand-700",
                       active && "text-brand-800",
                     )}
                   >
@@ -76,8 +78,8 @@ export function Header({ user, showAdminLink = false }: { user: HeaderUser; show
           </ul>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          {user ? (
+        <div className="ml-auto flex shrink-0 items-center gap-2 min-[1440px]:ml-0">
+          {user?.local ? <AccountTools /> : user ? (
             <>
               {showAdminLink && (
                 <Link
@@ -110,7 +112,7 @@ export function Header({ user, showAdminLink = false }: { user: HeaderUser; show
           )}
           <button
             type="button"
-            className="rounded-md p-2 text-gray-700 hover:bg-gray-100 lg:hidden"
+            className="rounded-md p-2 text-gray-700 hover:bg-gray-100 min-[1440px]:hidden"
             aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
             aria-expanded={open}
             aria-controls="mobile-menu"
@@ -119,17 +121,17 @@ export function Header({ user, showAdminLink = false }: { user: HeaderUser; show
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-      </Container>
+      </div>
 
       {/* Mobile navigation */}
       {open && (
         <nav
           id="mobile-menu"
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-gray-200 bg-white lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-gray-200 bg-white min-[1440px]:hidden"
           aria-label="모바일 메뉴"
         >
           <Container className="py-2">
-            {navigation.map((group) => (
+            {visibleNavigation.map((group) => (
               <details key={group.href} className="group border-b border-gray-100 py-1" open={isPathActive(pathname, group.href)}>
                 <summary className="flex cursor-pointer list-none items-center justify-between px-2 py-3 text-sm font-semibold text-gray-800">
                   {group.label}
@@ -154,7 +156,7 @@ export function Header({ user, showAdminLink = false }: { user: HeaderUser; show
                 </ul>
               </details>
             ))}
-            {user && (
+            {user && !user.local && (
               <div className="flex items-center justify-between gap-3 px-2 py-4 text-sm sm:hidden">
                 <span className="min-w-0 truncate text-gray-600">{user.email}</span>
                 <div className="flex shrink-0 items-center gap-2">

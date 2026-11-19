@@ -1,5 +1,5 @@
 export type NavItem = { label: string; href: string; description?: string };
-export type NavGroup = { label: string; href: string; items: NavItem[] };
+export type NavGroup = { label: string; href: string; items: NavItem[]; adminOnly?: boolean };
 
 // 메뉴 추가/수정은 이 파일만 고치면 Header, 모바일 메뉴, 섹션 메뉴, 준비 중 페이지에 모두 반영된다.
 // 규칙 (config/navigation.test.ts 가 검사):
@@ -7,6 +7,9 @@ export type NavGroup = { label: string; href: string; items: NavItem[] };
 //  - 하위 메뉴 href 는 그룹 href 로 시작한다.
 //  - 그룹 href 가 하위 메뉴에 없으면 첫 번째 하위 메뉴로 이동한다 (예: /library → /library/manuals).
 export const navigation: NavGroup[] = [
+  { label: "내 업무", href: "/mypage", items: [
+    { label: "나의 업무 현황", href: "/mypage" }, { label: "신청·사전 문의", href: "/mypage/requests" }, { label: "알림", href: "/mypage/notifications" },
+  ] },
   {
     label: "안전관리",
     href: "/safety",
@@ -48,6 +51,8 @@ export const navigation: NavGroup[] = [
     label: "LMO 관리",
     href: "/lmo",
     items: [
+      { label: "LMO 확인 지원", href: "/lmo/assessment" },
+      { label: "IBC 사전 문의", href: "/lmo/inquiry" },
       { label: "LMO 안내", href: "/lmo", description: "LMO 연구시설 관리 기준과 절차를 안내합니다." },
       { label: "LMO 연구시설 목록", href: "/lmo/facilities", description: "LMO 연구시설 목록을 조회합니다." },
       { label: "시설별 등급 및 신고·허가 정보", href: "/lmo/grades", description: "시설 안전관리 등급과 신고·허가 상태를 확인합니다." },
@@ -80,6 +85,10 @@ export const navigation: NavGroup[] = [
       { label: "FAQ", href: "/community/faq" },
     ],
   },
+  { label: "업무 지원", href: "/support", items: [
+    { label: "통합 검색", href: "/support/search" }, { label: "상황별 가이드", href: "/support/guides" }, { label: "안전 도우미", href: "/support/assistant", description: "등록된 참고 안내를 찾아봅니다. 실제 AI 모델은 연결되어 있지 않습니다." },
+  ] },
+  { label: "관리자", href: "/management", adminOnly: true, items: [{ label: "사용자·등록 자료 관리", href: "/management/users" }, { label: "전체 메뉴 관리", href: "/management/menus" }] },
 ];
 
 export type NavContext = { group: NavGroup; item: NavItem | null };

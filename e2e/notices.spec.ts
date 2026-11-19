@@ -17,5 +17,5 @@ test("비로그인 상태에서 공지 상세도 로그인 안내를 보여준�
 
 test("비로그인 상태에서 공지사항 관리는 로그인으로 보낸다", async ({ page }) => {
   await page.goto("/admin/notices/new");
-  await expect(page).toHaveURL(/\/login\?next=%2Fadmin%2Fnotices%2Fnew/);
+  await expect(page).toHaveURL(/\/institution-login\?next=%2Fadmin%2Fnotices%2Fnew/);
 });
