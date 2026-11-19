@@ -9,6 +9,9 @@ import { ComingSoon } from "@/components/ui/ComingSoon";
 export const metadata: Metadata = { title: "이용약관" };
 
 // 본문은 운영기관이 확정한 내용으로만 게시한다.
+// 포털 DB 내용(관리자 게시)을 요청마다 읽는다. 빌드 시 DB 에 접속하지 않는다.
+export const dynamic = "force-dynamic";
+
 export default async function TermsPage() {
   const document = await (await portalContent()).published("/terms"), local = await getLocalUser();
   return (

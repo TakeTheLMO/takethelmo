@@ -31,6 +31,9 @@ const sections = [
   { title: "최근 등록 자료", href: "/library", message: "등록된 자료가 없습니다." },
 ];
 
+// 포털 DB 내용(관리자 게시)을 요청마다 읽는다. 빌드 시 DB 에 접속하지 않는다.
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const institution = await getSessionUser();
   const local = await getLocalUser();
