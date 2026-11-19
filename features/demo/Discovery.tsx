@@ -136,14 +136,17 @@ export function SearchPage({ initialQuery = "", sharedPosts = [] }: { initialQue
     </div>
   );
 }
-export function Library({ selectedDoc }: { selectedDoc?: string }) {
+const libraryCategories = ["전체", ...new Set(documents.map((d) => d.category))];
+export function Library({ selectedDoc, initialCategory = "전체" }: { selectedDoc?: string; initialCategory?: string }) {
   const { state, update } = useDemo();
   const [query, setQuery] = useState("");
+  const [category, setCategory] = useState(initialCategory);
   const [onlySaved, setOnlySaved] = useState(false);
   const [sort, setSort] = useState("latest");
   const [selected, setSelected] = useState(selectedDoc || "");
   useEffect(() => setSelected(selectedDoc || ""), [selectedDoc]);
-  const rows = searchDocuments(query)
+  useEffect(() => setCategory(initialCategory), [initialCategory]);
+  const rows = searchDocuments(query, category)
     .filter((d) => !onlySaved || state.bookmarks.includes(d.id))
     .sort((a, b) =>
       sort === "latest"
@@ -153,9 +156,20 @@ export function Library({ selectedDoc }: { selectedDoc?: string }) {
   const doc = documents.find((d) => d.id === selected);
   return (
     <div className="space-y-6">
-      <LedgerGuidance />
-      <PreparationGuidance />
       <Panel>
+        <div role="group" aria-label="문서 분류" className="mb-4 flex flex-wrap gap-2">
+          {libraryCategories.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={category === c}
+              onClick={() => setCategory(c)}
+              className={`min-h-9 rounded-full border px-3 text-xs font-medium ${category === c ? "border-brand-600 bg-brand-50 text-brand-800" : "border-gray-200 text-gray-600 hover:border-brand-300"}`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
         <div className="flex flex-wrap items-end gap-4">
           <div className="min-w-0 flex-1">
             <Field label="자료 검색">
@@ -284,8 +298,15 @@ export function Library({ selectedDoc }: { selectedDoc?: string }) {
         ))}
       </div>
       {!rows.length && (
-        <Empty>표시할 문서가 없습니다. 검색 조건을 확인해 주세요.</Empty>
+        <Empty>
+          {category === "전체"
+            ? "표시할 문서가 없습니다. 검색 조건을 확인해 주세요."
+            : `'${category}' 분류에 맞는 문서가 없습니다. 분류를 '전체'로 바꾸거나 검색어를 확인해 주세요.`}
+        </Empty>
       )}
+      <h2 className="pt-4 text-sm font-semibold text-gray-700">업무별 작성 안내</h2>
+      <LedgerGuidance />
+      <PreparationGuidance />
     </div>
   );
 }
@@ -555,10 +576,18 @@ export function Assessment() {
   return (
     <div className="grid items-start gap-6 xl:grid-cols-2">
       <Panel title="업무 상황을 알려주세요">
-        <p className="mb-6 text-sm leading-6 text-gray-500">
+        <p className="mb-4 text-sm leading-6 text-gray-500">
           이 질문은 담당자에게 확인할 정보를 정리합니다.
           응답만으로 LMO 해당 여부나 신고 의무를 판정하지 않습니다.
         </p>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-100 bg-brand-50/50 p-4">
+          <p className="text-sm leading-6 text-gray-700">
+            이미 물어볼 내용이 있다면 질문 없이 바로 문의할 수 있어요.
+          </p>
+          <ButtonLink href="/lmo/inquiry" variant="outline">
+            IBC 사전 문의 바로 작성
+          </ButtonLink>
+        </div>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -785,7 +814,7 @@ export function Emergency() {
               href="/library/manuals?doc=guide-emergency"
               className="block rounded-lg border border-gray-200 p-4 text-sm"
             >
-              사고 연락·보고 안내 예제 →
+              사고 대응 비상연락망 및 대응 체계 (예제) →
             </Link>
             <ButtonLink href="/safety/incidents" className="w-full">
               안전 확보 후 사고 기록하기

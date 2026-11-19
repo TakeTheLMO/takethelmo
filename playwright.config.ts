@@ -6,7 +6,8 @@ export default defineConfig({
   // Shared admin account and server data are tested in a deterministic order.
   workers: 1,
   webServer: {
-    env: { LOCAL_AUTH_DB_PATH: process.env.LOCAL_AUTH_DB_PATH || "data/e2e-auth.sqlite" },
+    // .env 에 배포용 PORTAL_DATABASE_URL 이 있어도 E2E 는 항상 로컬 SQLite 를 쓴다 (배포 DB 오염 방지).
+    env: { LOCAL_AUTH_DB_PATH: process.env.LOCAL_AUTH_DB_PATH || "data/e2e-auth.sqlite", PORTAL_DATABASE_URL: "", PORTAL_ADMIN_PASSWORD: "" },
     command: `npm run start -- --port ${port}`,
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,

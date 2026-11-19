@@ -26,7 +26,7 @@ import {
   type RequestStatus,
 } from "./model";
 import { pushNotification, useDemo } from "./Store";
-import { blankInquiry, InquiryFields, InquiryNotice } from "./InquiryForm";
+import { blankInquiry, InquiryFields, InquiryNotice, InquiryPreparation, InquiryStatusGuide } from "./InquiryForm";
 import { latestDraftKind, assessmentText } from "./continuity";
 import type { RequestDraft as Draft } from "./model";
 const kindFromQuery = (kind?: string) =>
@@ -228,6 +228,8 @@ export function Requests({ initialKind }: { initialKind?: string }) {
             {inquiry ? (
               <>
                 <InquiryNotice />
+                <InquiryPreparation />
+                <InquiryStatusGuide />
                 {draft.inquiry.assessment && (
                   <div className="rounded-xl bg-gray-50 p-4">
                     <h3 className="text-sm font-semibold">
@@ -388,7 +390,8 @@ function RequestCard({ item }: { item: RequestItem }) {
         )}
       </div>
       {inquiry && (
-        <div className="mt-5">
+        <div className="mt-5 space-y-3">
+          {item.owner === state.role && <InquiryStatusGuide current={item.status} />}
           <InquiryNotice />
         </div>
       )}

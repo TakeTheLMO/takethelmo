@@ -11,6 +11,7 @@ import { Inspections } from "../demo/Inspections";
 import { Incidents } from "../demo/Incidents";
 import { Notifications } from "../demo/Notifications";
 import { SearchPage, Library, Assistant, Guides, Assessment, Emergency } from "../demo/Discovery";
+import { libraryCategoryFor } from "../demo/data";
 import { Users } from "../user-management/Users";
 import { PersonalFiles } from "./PortalHighlights";
 import { Empty, Panel } from "@/components/ui/DemoUI";
@@ -32,7 +33,7 @@ export async function WorkPage({ path, query = {} }: { path: string; query?: Rec
     case "incidents": content = <Incidents />; break;
     case "notifications": content = <Notifications />; break;
     case "search": content = <SearchPage initialQuery={value("q")} sharedPosts={await (await portalContent()).search()} />; break;
-    case "library": content = path === "/library/msds" || path === "/library/videos" ? document?.posts.length ? null : <Panel><Empty>{path.endsWith("msds") ? "등록된 MSDS 자료가 없습니다. 취급 물질의 최신 자료를 담당자에게 확인해 주세요." : "등록된 안전 관련 동영상이 없습니다."}</Empty></Panel> : <div className="space-y-6"><PersonalFiles /><Library selectedDoc={value("doc")} /></div>; break;
+    case "library": content = path === "/library/msds" || path === "/library/videos" ? document?.posts.length ? null : <Panel><Empty>{path.endsWith("msds") ? "등록된 MSDS 자료가 없습니다. 취급 물질의 최신 자료를 담당자에게 확인해 주세요." : "등록된 안전 관련 동영상이 없습니다."}</Empty></Panel> : <div className="space-y-6"><Library selectedDoc={value("doc")} initialCategory={libraryCategoryFor(path)} /><PersonalFiles /></div>; break;
     case "assistant": content = <Assistant />; break;
     case "guides": content = <Guides />; break;
     case "assessment": content = <Assessment />; break;

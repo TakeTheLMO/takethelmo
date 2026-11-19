@@ -10,6 +10,20 @@ export const navigation: NavGroup[] = [
   { label: "내 업무", href: "/mypage", items: [
     { label: "나의 업무 현황", href: "/mypage" }, { label: "신청·사전 문의", href: "/mypage/requests" }, { label: "알림", href: "/mypage/notifications" },
   ] },
+  // 사용자 피드백(2026-11-17): SOP·자료실을 바로 찾기 어렵다 → 자료실을 '내 업무' 바로 뒤에 둔다.
+  {
+    label: "자료실",
+    href: "/library",
+    items: [
+      { label: "안전관리 매뉴얼", href: "/library/manuals", description: "SOP·안내 문서 전체를 검색하고 내려받습니다." },
+      { label: "문서 서식", href: "/library/forms", description: "신청·점검에 쓰는 서식을 모아 봅니다." },
+      { label: "사고대응 매뉴얼", href: "/library/incident-response", description: "사고 대응 체계와 보고 순서를 안내합니다." },
+      { label: "안전교육 자료", href: "/library/training", description: "교육 이수와 기록 등록에 관한 자료입니다." },
+      { label: "법령 및 규정", href: "/library/laws", description: "안전 규정과 점검 운영 관련 자료입니다." },
+      { label: "MSDS 자료", href: "/library/msds" },
+      { label: "안전 관련 동영상", href: "/library/videos" },
+    ],
+  },
   {
     label: "안전관리",
     href: "/safety",
@@ -51,8 +65,8 @@ export const navigation: NavGroup[] = [
     label: "LMO 관리",
     href: "/lmo",
     items: [
-      { label: "LMO 확인 지원", href: "/lmo/assessment" },
-      { label: "IBC 사전 문의", href: "/lmo/inquiry" },
+      { label: "IBC 사전 문의", href: "/lmo/inquiry", description: "실험 계획을 IBC 담당자에게 미리 문의하고 답변을 확인합니다. 답변은 승인·허가가 아닙니다." },
+      { label: "LMO 확인 지원", href: "/lmo/assessment", description: "몇 가지 질문에 답해 담당자에게 확인할 내용을 정리합니다." },
       { label: "LMO 안내", href: "/lmo", description: "LMO 연구시설 관리 기준과 절차를 안내합니다." },
       { label: "LMO 연구시설 목록", href: "/lmo/facilities", description: "LMO 연구시설 목록을 조회합니다." },
       { label: "시설별 등급 및 신고·허가 정보", href: "/lmo/grades", description: "시설 안전관리 등급과 신고·허가 상태를 확인합니다." },
@@ -64,19 +78,6 @@ export const navigation: NavGroup[] = [
     ],
   },
   {
-    label: "자료실",
-    href: "/library",
-    items: [
-      { label: "안전관리 매뉴얼", href: "/library/manuals" },
-      { label: "안전교육 자료", href: "/library/training" },
-      { label: "사고대응 매뉴얼", href: "/library/incident-response" },
-      { label: "법령 및 규정", href: "/library/laws" },
-      { label: "MSDS 자료", href: "/library/msds" },
-      { label: "문서 서식", href: "/library/forms" },
-      { label: "안전 관련 동영상", href: "/library/videos" },
-    ],
-  },
-  {
     label: "커뮤니티",
     href: "/community",
     items: [
@@ -85,7 +86,7 @@ export const navigation: NavGroup[] = [
       { label: "FAQ", href: "/community/faq" },
     ],
   },
-  { label: "업무 지원", href: "/support", items: [
+  { label: "검색·가이드", href: "/support", items: [
     { label: "통합 검색", href: "/support/search" }, { label: "상황별 가이드", href: "/support/guides" }, { label: "안전 도우미", href: "/support/assistant", description: "등록된 참고 안내를 찾아봅니다. 실제 AI 모델은 연결되어 있지 않습니다." },
   ] },
   { label: "관리자", href: "/management", adminOnly: true, items: [{ label: "사용자·등록 자료 관리", href: "/management/users" }, { label: "전체 메뉴 관리", href: "/management/menus" }] },

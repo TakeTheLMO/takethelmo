@@ -2,6 +2,32 @@
 import { Badge, Panel } from "@/components/ui/DemoUI";
 import { ButtonLink } from "@/components/ui/Button";
 
+export function LedgerExamples() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div className="rounded-lg bg-white p-4 text-sm leading-7">
+        <h3 className="font-semibold">예시 1 · 입고 후 일부 사용</h3>
+        <p>물질명: 수입신고확인서상 명칭</p>
+        <p>
+          입고량 <strong>5 vial</strong> · 사용량 <strong>1 vial</strong> ·
+          보관량 <strong>4 vial</strong>
+        </p>
+        <p>비고: 1 vial당 1 ml (용량 병기 제안)</p>
+      </div>
+      <div className="rounded-lg bg-white p-4 text-sm leading-7">
+        <h3 className="font-semibold">예시 2 · 배양으로 수량 증가</h3>
+        <p>
+          입고량 <strong>1 vial</strong> · 보관량 <strong>10 vial</strong>
+        </p>
+        <p>비고: 배양으로 1 vial → 10 vial</p>
+        <p className="mt-2 text-xs text-gray-500">
+          수량 차이만으로 오류를 판정하지 않습니다. 사용량 및 해당하지 않는
+          칸의 기재 방법은 기관에 확인하세요.
+        </p>
+      </div>
+    </div>
+  );
+}
 export function LedgerGuidance() {
   return (
     <Panel title="관리대장 작성 안내">
@@ -42,28 +68,7 @@ export function LedgerGuidance() {
           서로 다른 두 가지 가상 사례입니다. 실제 시설 등급·신고번호·명칭을
           뜻하지 않습니다.
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg bg-white p-4 text-sm leading-7">
-            <h3 className="font-semibold">예시 1 · 입고 후 일부 사용</h3>
-            <p>물질명: 수입신고확인서상 명칭</p>
-            <p>
-              입고량 <strong>5 vial</strong> · 사용량 <strong>1 vial</strong> ·
-              보관량 <strong>4 vial</strong>
-            </p>
-            <p>비고: 1 vial당 1 ml (용량 병기 제안)</p>
-          </div>
-          <div className="rounded-lg bg-white p-4 text-sm leading-7">
-            <h3 className="font-semibold">예시 2 · 배양으로 수량 증가</h3>
-            <p>
-              입고량 <strong>1 vial</strong> · 보관량 <strong>10 vial</strong>
-            </p>
-            <p>비고: 배양으로 1 vial → 10 vial</p>
-            <p className="mt-2 text-xs text-gray-500">
-              수량 차이만으로 오류를 판정하지 않습니다. 사용량 및 해당하지 않는
-              칸의 기재 방법은 기관에 확인하세요.
-            </p>
-          </div>
-        </div>
+        <LedgerExamples />
       </details>
       <details className="mt-4 rounded-xl border border-gray-200 p-4 text-sm">
         <summary className="cursor-pointer font-medium">

@@ -2,23 +2,23 @@ import type { DemoState } from "./model";
 export const documents = [
   {
     id: "sop-start",
-    title: "신규 연구원 첫 출입 체크리스트",
+    title: "신규 연구원 출입 절차 안내",
     category: "SOP",
     updated: "2026-11-02",
     version: "v2.1",
     target: "신규 연구원",
-    tags: "출입 첫 방문 교육 보호구 SOP",
+    tags: "출입 첫 방문 체크리스트 신규 교육 보호구 SOP",
     body: "이 문서는 가상의 체험용 SOP입니다.\n1. 연구실 담당자에게 출입 가능 여부와 필수 교육을 확인합니다.\n2. 해당 실험에 적용되는 기관 승인 SOP의 최신판을 확인합니다.\n3. 담당자와 비상 연락망 및 대피 경로를 확인합니다.\n4. 승인된 절차를 이해한 뒤 업무를 시작합니다.",
     changes: ["v2.1 · 담당자 확인 항목 추가", "v2.0 · 최초 데모 공개"],
   },
   {
     id: "sop-lmo",
-    title: "LMO 업무 시작 전 확인 안내",
+    title: "LMO 업무 주의사항",
     category: "LMO",
     updated: "2026-11-01",
     version: "v1.2",
     target: "LMO 취급 연구원",
-    tags: "LMO 유전자 변형 생물체 신고 시설 변경",
+    tags: "LMO 주의사항 업무 시작 전 확인 유전자 변형 생물체 신고 시설 변경",
     body: "가상 업무 안내이며 법적 판정 또는 실험 절차가 아닙니다.\n생물체와 도입 유전물질, 예정 업무, 시설의 기존 신고·허가 기록을 정리하여 기관 LMO 담당자에게 확인을 요청하세요.\n업무별 최신 기준과 공식 절차는 시험·연구용 LMO정보시스템에서 확인하세요.",
     changes: ["v1.2 · 담당자 확인 목록 보강", "v1.0 · 최초 데모 공개"],
   },
@@ -35,13 +35,13 @@ export const documents = [
   },
   {
     id: "guide-emergency",
-    title: "사고 인지 시 연락·보고 안내",
+    title: "사고 대응 비상연락망 및 대응 체계",
     category: "사고 대응",
     updated: "2026-11-03",
     version: "v1.1",
     target: "모든 구성원",
-    tags: "사고 비상 긴급 연락 대피 보고 아차사고",
-    body: "데모 안내입니다. 실제 상황에서는 현장 안전 확보와 기관 비상계획에 따른 대응을 우선하고 필요한 긴급 도움을 요청하세요.\n이 홈페이지의 보고서 작성은 긴급 구조 요청을 대신하지 않습니다.\n안전이 확보된 뒤 발생 시각·장소·상황을 기록하고 기관 담당자에게 전달하세요. 구체적 대응은 기관 승인 SOP를 따르세요.",
+    tags: "사고 비상 긴급 연락 비상연락망 대응 체계 대피 보고 아차사고",
+    body: "데모 안내입니다. 실제 상황에서는 현장 안전 확보와 기관 비상계획에 따른 대응을 우선하고 필요한 긴급 도움을 요청하세요.\n이 홈페이지의 보고서 작성은 긴급 구조 요청을 대신하지 않습니다.\n안전이 확보된 뒤 발생 시각·장소·상황을 기록하고 기관 담당자에게 전달하세요. 구체적 대응은 기관 승인 SOP를 따르세요.\n기관 비상연락망(담당자·연락처)은 기관이 확정한 뒤 게시합니다. 이 예제에는 실제 연락처를 넣지 않았습니다.",
     changes: ["v1.1 · 긴급 신고와 사후 보고 구분", "v1.0 · 최초 데모 공개"],
   },
   {
@@ -352,4 +352,16 @@ export function answerQuestion(question: string) {
         text: "가상 자료에서 이 질문의 근거를 찾지 못했어요. 교육, LMO, SOP, 점검, 사고, 신청에 대해 질문하거나 통합 검색을 사용해 주세요. 기관 고유 절차는 담당자에게 확인해 주세요.",
         sources: [],
       };
+}
+// 자료실 하위 메뉴(경로)별로 처음 보여줄 문서 분류. 없는 경로는 전체.
+const libraryCategoryByPath: Record<string, string> = {
+  "/library/forms": "서식",
+  "/library/incident-response": "사고 대응",
+  "/library/training": "교육",
+  "/library/laws": "안전 규정",
+  "/safety/regulations": "안전 규정",
+  "/lmo/documents": "LMO",
+};
+export function libraryCategoryFor(path: string) {
+  return libraryCategoryByPath[path] || "전체";
 }

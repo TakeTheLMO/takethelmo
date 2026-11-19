@@ -68,6 +68,25 @@ test("자료실과 검색, AI 미연결 표시를 제공한다", async ({ page }
   await page.goto("/support/assistant"); await expect(page.getByText("참고 안내 · AI 미연결", { exact: true })).toBeVisible();
 });
 
+test("피드백 반영: 자료실 분류, IBC 문의 경로와 상태 안내, 점검 서류 링크", async ({ page }) => {
+  await registerLocalUser(page);
+  await page.goto("/library/forms");
+  await expect(page.getByRole("button", { name: "서식", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("heading", { name: "연구실·시설 변경 검토 요청서" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "신규 연구원 출입 절차 안내" })).toHaveCount(0);
+  await page.getByRole("button", { name: "전체", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "신규 연구원 출입 절차 안내" })).toBeVisible();
+  await page.goto("/lmo/assessment");
+  await page.getByRole("link", { name: "IBC 사전 문의 바로 작성" }).click();
+  await expect(page).toHaveURL(/\/lmo\/inquiry$/);
+  await expect(page.getByText("작성 전에 준비하면 좋은 정보")).toBeVisible();
+  await expect(page.getByText("사전 문의는 이렇게 진행돼요")).toBeVisible();
+  await page.goto("/safety/inspections");
+  await page.getByRole("link", { name: /연구실 일상점검 운영 예시/ }).click();
+  await expect(page).toHaveURL(/\/library\/laws\?doc=policy-safety$/);
+  await expect(page.getByRole("button", { name: "예제 문서 다운로드" })).toBeVisible();
+});
+
 test("모바일 포털과 업무 메뉴에 가로 넘침이 없다", async ({ page }) => {
   await registerLocalUser(page); await page.setViewportSize({ width: 390, height: 844 });
   for (const path of ["/portal", "/mypage", "/mypage/requests", "/training/courses", "/labs", "/safety/inspections", "/lmo/ledger", "/lmo/assessment", "/library/manuals", "/support/guides", "/mypage/notifications"]) {

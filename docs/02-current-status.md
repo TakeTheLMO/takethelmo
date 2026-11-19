@@ -2,6 +2,15 @@
 
 > 작업이 끝날 때마다 이 파일을 갱신한다. 표시: ✅ 완료 · 🟡 일부 · ⬜ 미구현
 
+> 2026-11-20 사용자 피드백 반영(`docs/taketheLMO 프로토타입 체험 후 피드백.xlsx`, 응답 2건, 1순위 ①~④):
+> ① 메뉴: 자료실을 '내 업무' 바로 뒤로 옮김, 자료실 하위 메뉴에 설명 추가, '업무 지원' → '검색·가이드', LMO 메뉴 첫 항목을 IBC 사전 문의로. 자료실은 문서 목록을 맨 위로, 하위 메뉴 경로별 분류(서식·사고 대응·교육·안전 규정·LMO) 자동 선택과 분류 버튼(`libraryCategoryFor`). 관리대장·수입신고 안내는 목록 아래 '업무별 작성 안내'로 이동.
+> ② 문서 제목: 신규 연구원 출입 절차 안내 / LMO 업무 주의사항 / 사고 대응 비상연락망 및 대응 체계. 예전 제목 단어는 검색 태그로 유지. 비상연락망 문서에는 실제 연락처를 넣지 않고 "기관 확정 후 게시"로 명시.
+> ③ IBC 사전 문의: LMO 확인 지원 상단에 '바로 작성' 버튼, 나의 업무 현황에 '자주 찾는 업무' 바로가기, 작성 화면에 '작성 전에 준비하면 좋은 정보'와 상태별 의미·다음 할 일 안내(`InquiryStatusGuide`), 본인 문의 카드에 현재 상태 설명.
+> ④ 화면 안 설명: 관리대장 입력칸 예시값·단위 설명·접이식 작성 예시(`LedgerExamples` 재사용), 점검 화면 상단에 '점검에 필요한 서류·양식' 링크.
+> 검증: 단위 87개, E2E 31개(신규 1) 통과, 타입 검사·production build 통과, lint 오류 0/기존 경고 3.
+> **주의**: 이전까지 `.env` 에 `PORTAL_DATABASE_URL` 이 있으면 E2E 서버가 배포 Postgres 에 접속했다(이번 작업 중 테스트 계정 `test-<uuid>@example.com` 이 배포 DB 에 생성됨, 정리 필요). `playwright.config.ts` 에서 이 값을 비워 E2E 는 항상 로컬 SQLite 를 쓰게 고쳤다.
+> 미사용 코드: `features/demo/Shell.tsx`(`DemoShell`, 옛 '정보 찾기' 메뉴)는 현재 어디서도 쓰이지 않는다.
+
 > 2026-11-19 배포 수정: Vercel 에서 `/portal`·`/community/notices` 가 500, 로그인 API 가 503 이던 원인은 포털 SQLite 파일 생성 실패(서버리스 읽기 전용 파일시스템). 포털 저장소를 비동기 `Sql` 인터페이스로 바꾸고 `PORTAL_DATABASE_URL` 이 있으면 Supabase Postgres 를 쓰도록 했다(로컬·테스트는 SQLite 유지). Supabase 프로젝트에 0001~0004 마이그레이션 적용. `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` 이름도 인식. 배포 DB 에는 `admin/admin` 을 만들지 않고 `PORTAL_ADMIN_PASSWORD` 로만 생성. 검증: 단위 84개 통과, 타입 검사·lint(오류 0/기존 경고 3)·production build 통과, Postgres 쪽 SQL 은 Supabase 에서 롤백 트랜잭션으로 확인. 기존 로컬 SQLite 데이터는 배포 DB 로 이관하지 않았다.
 
 > 2026-11-19: 인증 체계 2개(포털 SQLite / 기관 Supabase) 병행을 결정(D-15)하고 경계를 `AGENTS.md` 2-1 절에 문서화. 역할 표시명 통일(D-14). 통합 여부는 D-16(결정 필요).

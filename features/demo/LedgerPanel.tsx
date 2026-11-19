@@ -11,7 +11,7 @@ import {
 } from "./model";
 import { useDemo } from "./Store";
 import { downloadBlob } from "./files";
-import { LedgerGuidance } from "./Guidance";
+import { LedgerExamples, LedgerGuidance } from "./Guidance";
 import { LedgerRevision } from "./LedgerRevision";
 import { ledgerCsv, validateLedger } from "./ledger";
 
@@ -149,15 +149,15 @@ export function LedgerPanel() {
                 name="label"
                 required
                 maxLength={150}
-                placeholder="확인한 자료의 명칭"
+                placeholder="예: 수입신고확인서에 적힌 명칭 그대로"
               />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                ["received", "입고량"],
-                ["used", "사용량"],
-                ["stored", "보관량"],
-              ].map(([name, label]) => (
+                ["received", "입고량", "예: 5"],
+                ["used", "사용량", "예: 1"],
+                ["stored", "보관량", "예: 4"],
+              ].map(([name, label, example]) => (
                 <Field key={name} label={label}>
                   <input
                     className={inputClass}
@@ -165,11 +165,11 @@ export function LedgerPanel() {
                     type="number"
                     min="0"
                     step="any"
-                    placeholder="미기재"
+                    placeholder={`${example} (비우면 미기재)`}
                   />
                 </Field>
               ))}
-              <Field label="수량 단위">
+              <Field label="수량 단위" hint="vial·tube·plate는 용기 개수, 마리는 동물 수, ml는 부피예요.">
                 <select name="unit" className={inputClass}>
                   {ledgerUnits.map((unit) => (
                     <option key={unit}>{unit}</option>
@@ -183,6 +183,14 @@ export function LedgerPanel() {
               확인하세요. 배양 등 수량 변동 사유가 있으면 작성 기준을 확인해
               비고에 기재하세요.
             </p>
+            <details className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <summary className="cursor-pointer text-sm font-medium text-brand-800">
+                수량 작성 예시 보기 (가상 사례)
+              </summary>
+              <div className="mt-4">
+                <LedgerExamples />
+              </div>
+            </details>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="보관 위치"><input className={inputClass} name="storageLocation" maxLength={150} placeholder="예: 보관실 A / 선반 2" /></Field>
               <Field label="용기당 용량" hint="수량과 별도로 기록합니다. 예: 1 vial당 1 ml. 단위·기재 방식은 기관 확인 필요."><input className={inputClass} name="containerCapacity" maxLength={150} placeholder="예: 1 vial당 1 ml" /></Field>

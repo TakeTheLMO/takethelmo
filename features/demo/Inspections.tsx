@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import {
   Attachment,
@@ -29,11 +30,24 @@ export function Inspections() {
   const actions = state.actions.filter(row => filter === "전체" || row.status === filter);
   const legacy = state.inspections.filter(row => !row.daily);
   return <div className="space-y-6">
+    <InspectionDocuments />
     <DailyInspections />
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">개선조치</h2><label className="flex items-center gap-2 text-xs text-gray-500">조치 상태<select className={inputClass} value={filter} onChange={e => setFilter(e.target.value)}>{["전체", "조치 중", "검토 대기", "종결"].map(status => <option key={status}>{status}</option>)}</select></label></div>
     <div className="space-y-4">{actions.map(item => <ActionCard key={item.id} item={item} />)}{!actions.length && <Empty>해당하는 개선조치가 없습니다.</Empty>}</div>
     {!!legacy.length && <Panel title="이전 양식 점검 이력"><p className="mb-3 text-xs text-gray-500">기존 점검표의 응답을 그대로 보관합니다. 새 일상점검 달력에는 별도 기록됩니다.</p>{legacy.map(row => <details className="border-b border-gray-100 py-3" key={row.id}><summary className="cursor-pointer text-sm">{timeLabel(row.at)} · {row.inspector || "기록자 미기재"}</summary><div className="mt-3 space-y-2 text-sm">{checklist.map(item => <p key={item.id}>{item.title}: {row.results[item.id] || "미응답"}</p>)}<p className="whitespace-pre-wrap">{row.note}</p></div></details>)}</Panel>}
   </div>;
+}
+// 사용자 피드백(2026-11-17): 점검에 필요한 서류·양식을 찾기 어렵다 → 점검 화면에서 바로 이동.
+const inspectionDocs = [
+  ["연구실 일상점검 운영 예시", "점검 항목 확인 → 부적합 기록 → 조치·증빙 → 검토 순서", "/library/laws?doc=policy-safety"],
+  ["문서 서식", "신청·변경 검토 등 서식 모음", "/library/forms"],
+  ["안전관리 규정", "기관 규정·운영 자료", "/safety/regulations"],
+] as const;
+function InspectionDocuments() {
+  return <Panel title="점검에 필요한 서류·양식">
+    <p className="mb-4 text-xs leading-6 text-gray-500">예제 문서와 관리자가 해당 메뉴에 게시한 자료를 볼 수 있습니다. 실제 점검 항목·주기와 제출 서류는 기관 승인 기준을 따르세요.</p>
+    <div className="grid gap-3 sm:grid-cols-3">{inspectionDocs.map(([label, desc, href]) => <Link key={href} href={href} className="rounded-lg border border-gray-200 p-4 text-sm hover:border-brand-600"><span className="font-medium text-gray-900">{label} →</span><span className="mt-1 block text-xs leading-5 text-gray-500">{desc}</span></Link>)}</div>
+  </Panel>;
 }
 function ActionCard({ item }: { item: ActionItem }) {
   const { state, user, update, notify, storageScope } = useDemo();

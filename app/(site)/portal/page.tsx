@@ -17,9 +17,9 @@ const quickMenu = [
   { label: "안전관리", desc: "점검 · 개선조치", href: "/safety", icon: ShieldCheck },
   { label: "연구실 관리", desc: "연구실 · 구성원", href: "/labs", icon: FlaskConical },
   { label: "안전교육", desc: "교육과정 · 이수현황", href: "/training", icon: GraduationCap },
-  { label: "LMO 관리", desc: "연구시설 · 관리대장", href: "/lmo", icon: Dna },
+  { label: "LMO 관리", desc: "IBC 사전 문의 · 관리대장", href: "/lmo", icon: Dna },
   { label: "사고보고", desc: "사고 · 아차사고", href: "/safety/incidents", icon: AlertTriangle },
-  { label: "자료실", desc: "매뉴얼 · 서식 · MSDS", href: "/library", icon: BookOpen },
+  { label: "자료실·SOP", desc: "SOP · 서식 · 매뉴얼", href: "/library", icon: BookOpen },
 ];
 
 // 데이터 연동 전까지는 허위 수치 대신 빈 상태를 보여준다.
